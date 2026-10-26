@@ -6,3 +6,6 @@ __pycache__/
 registry.json
 registry.json.lock
 registry.previous.json
+workbench
+workbench-*
+coverage.out

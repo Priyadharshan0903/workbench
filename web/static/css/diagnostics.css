@@ -1,0 +1,76 @@
+.page-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+}
+.table-wrap {
+  overflow: auto;
+}
+table {
+  width: 100%;
+  min-width: 730px;
+  border-collapse: collapse;
+  text-align: left;
+}
+th {
+  padding: 10px 12px 14px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+td {
+  padding: 16px 12px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  vertical-align: middle;
+}
+td strong {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  font-size: 13px;
+}
+td small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.ports {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 220px;
+}
+.process-path {
+  font:
+    11px/1.7 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  max-width: 280px;
+  overflow-wrap: anywhere;
+  color: var(--muted);
+}
+.stop-button {
+  border: 1px solid var(--control);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--negative);
+  font-size: 11px;
+  padding: 6px 12px;
+}
+.footnote {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 12px 0;
+}

@@ -1,9 +1,15 @@
 #!/bin/zsh
 cd -- "${0:A:h}" || exit 1
-for workbench_python in python3 /opt/homebrew/bin/python3 /usr/local/bin/python3; do
-  if "$workbench_python" -c 'import sys; raise SystemExit(sys.version_info < (3, 10))' 2>/dev/null; then
-    exec "$workbench_python" start.py
-  fi
-done
-echo 'Workbench needs Python 3.10 or newer. Install Python, then open this launcher again.'
+if [[ ! -x ./workbench ]]; then
+  for workbench_go in go /opt/homebrew/bin/go /usr/local/go/bin/go; do
+    if command -v "$workbench_go" >/dev/null 2>&1; then
+      "$workbench_go" build -trimpath -o workbench ./cmd/workbench || exit 1
+      break
+    fi
+  done
+fi
+if [[ -x ./workbench ]]; then
+  exec ./workbench start
+fi
+echo 'Build Workbench with Go 1.24+ first, or use the executable package for your Mac.'
 read -r '?Press Return to close.'

@@ -130,3 +130,16 @@ MCP framing, session dispatch, tool handlers and schemas are separate files with
 names, keyed literals and spacing between logical steps. Responses are serialized once before
 writing, with the same response bound and explicit short-write handling. Stdout remains protocol
 only. Cobra is pinned in `go.mod`/`go.sum`; dependency licenses accompany both archive formats.
+
+## Readable frontend and concrete data contracts
+
+The dashboard script now has descriptive state names, multiline templates, focused card renderers,
+named event handlers and grouped initialization. Form parsing, port parsing and local website
+validation are separate functions. It remains a plain JavaScript asset embedded in the Go binary.
+The existing workspace storage key/theme migration and reviewed launch/stop flow are preserved.
+
+Known Go payloads now use concrete structs, including public runner summaries, launch results,
+HTTP health/action responses, shared port checks, catalog acknowledgements and MCP tool schemas
+and results. MCP reuses the encoded tool object for structured content. Generic serialization
+and dispatch boundaries retain `any`; domain payloads do not use untyped maps. Verification
+covers optional JSON fields, a successful exit code of zero and explicit schema restrictions.

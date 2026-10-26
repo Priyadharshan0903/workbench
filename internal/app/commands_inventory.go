@@ -3,7 +3,6 @@ package app
 import (
 	"errors"
 	"fmt"
-	"slices"
 	"strconv"
 
 	"github.com/spf13/cobra"
@@ -74,31 +73,12 @@ func (options *commandOptions) newCheckPortCommand() *cobra.Command {
 				return err
 			}
 
-			reservedBy := []string{}
-			listeners := []*inventory.Service{}
-
-			for _, project := range snapshot.Projects {
-				if slices.Contains(project.Ports, port) {
-					reservedBy = append(reservedBy, project.Name)
-				}
-			}
-
-			for _, service := range snapshot.Services {
-				if slices.Contains(service.Ports, port) {
-					listeners = append(listeners, service)
-				}
-			}
-
-			if err := printJSON(command.OutOrStdout(), map[string]any{
-				"port":            port,
-				"reservedBy":      reservedBy,
-				"listeners":       listeners,
-				"inspectionError": snapshot.InspectionError,
-			}); err != nil {
+			portCheck := snapshot.CheckPort(port)
+			if err := printJSON(command.OutOrStdout(), portCheck); err != nil {
 				return err
 			}
 
-			if len(reservedBy) > 0 || len(listeners) > 0 || snapshot.InspectionError != nil {
+			if !portCheck.Available() {
 				options.exitCode = exitPortUnavailable
 			}
 

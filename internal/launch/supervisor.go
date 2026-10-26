@@ -49,6 +49,13 @@ type RunRecord struct {
 	ChildPID   int    `json:"childPid,omitempty"`
 	ExitCode   *int   `json:"exitCode,omitempty"`
 }
+
+type StartResult struct {
+	OK             bool   `json:"ok"`
+	AlreadyRunning bool   `json:"alreadyRunning,omitempty"`
+	RunID          string `json:"runId,omitempty"`
+	Message        string `json:"message"`
+}
 type cachedHealth struct {
 	at    time.Time
 	value inventory.Health
@@ -173,14 +180,14 @@ func randomID(n int) string {
 	}
 	return hex.EncodeToString(b)
 }
-func (s *Supervisor) Start(id, fingerprint string, revision int) (map[string]any, error) {
+func (s *Supervisor) Start(id, fingerprint string, revision int) (StartResult, error) {
 	if revision < 1 || fingerprint == "" {
-		return nil, errors.New("Review the current launch plan before starting.")
+		return StartResult{}, errors.New("Review the current launch plan before starting.")
 	}
 	s.startMu.Lock()
 	defer s.startMu.Unlock()
 	// A file lock protects duplicate starts across CLI/server processes as well.
-	var result map[string]any
+	var result StartResult
 	e := s.Store.WithLock(func() error {
 		plan, e := s.LaunchPlan(id)
 		if e != nil {
@@ -199,7 +206,7 @@ func (s *Supervisor) Start(id, fingerprint string, revision int) (map[string]any
 		for _, p := range current.Projects {
 			if p.ID == id {
 				if len(p.Services) > 0 {
-					result = map[string]any{"ok": true, "alreadyRunning": true, "message": "This project already has a running service."}
+					result = StartResult{OK: true, AlreadyRunning: true, Message: "This project already has a running service."}
 					return nil
 				}
 				if len(p.Conflicts) > 0 {
@@ -208,7 +215,7 @@ func (s *Supervisor) Start(id, fingerprint string, revision int) (map[string]any
 			}
 		}
 		if s.ActiveRun(s.ReadRun(id)) {
-			result = map[string]any{"ok": true, "alreadyRunning": true, "message": "This project is already starting."}
+			result = StartResult{OK: true, AlreadyRunning: true, Message: "This project is already starting."}
 			return nil
 		}
 		runtime := filepath.Join(s.Store.Root, ".runtime")
@@ -256,7 +263,7 @@ func (s *Supervisor) Start(id, fingerprint string, revision int) (map[string]any
 		if e != nil {
 			return errors.New("Could not hand the launch to the runner. Check the project logs.")
 		}
-		result = map[string]any{"ok": true, "runId": runID, "message": "Starting " + plan.Name + "…"}
+		result = StartResult{OK: true, RunID: runID, Message: "Starting " + plan.Name + "…"}
 		return nil
 	})
 	return result, e

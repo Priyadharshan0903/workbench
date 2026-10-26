@@ -49,21 +49,19 @@ func (s *Supervisor) CheckHTTP(value string) inventory.Health {
 	s.healthMu.Unlock()
 	return result
 }
-func publicRun(r *RunRecord) map[string]any {
-	if r == nil {
+func publicRun(record *RunRecord) *inventory.RunSummary {
+	if record == nil {
 		return nil
 	}
-	v := map[string]any{"runId": r.RunID, "startedAt": r.StartedAt, "phase": r.Phase}
-	if r.UpdatedAt != "" {
-		v["updatedAt"] = r.UpdatedAt
+
+	return &inventory.RunSummary{
+		RunID:      record.RunID,
+		StartedAt:  record.StartedAt,
+		Phase:      record.Phase,
+		UpdatedAt:  record.UpdatedAt,
+		FinishedAt: record.FinishedAt,
+		ExitCode:   record.ExitCode,
 	}
-	if r.FinishedAt != "" {
-		v["finishedAt"] = r.FinishedAt
-	}
-	if r.ExitCode != nil {
-		v["exitCode"] = *r.ExitCode
-	}
-	return v
 }
 func (s *Supervisor) Enrich(state *inventory.Snapshot) {
 	var wg sync.WaitGroup

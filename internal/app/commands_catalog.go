@@ -84,10 +84,10 @@ func (options *commandOptions) newRegisterCommand() *cobra.Command {
 				return err
 			}
 
-			return printJSON(command.OutOrStdout(), map[string]any{
-				"ok":       true,
-				"id":       project.ID,
-				"revision": registry.Revision,
+			return printJSON(command.OutOrStdout(), catalog.RegistrationResult{
+				OK:       true,
+				ID:       project.ID,
+				Revision: registry.Revision,
 			})
 		},
 	}

@@ -16,16 +16,27 @@ type Health struct {
 
 type ProjectView struct {
 	catalog.Project
-	Services            []*Service     `json:"services"`
-	Conflicts           []*Service     `json:"conflicts"`
-	PathExists          bool           `json:"pathExists"`
-	ExtraServices       bool           `json:"extraServices"`
-	Status              string         `json:"status"`
-	StatusMessage       string         `json:"statusMessage"`
-	CanLaunch           bool           `json:"canLaunch"`
-	LaunchSetupRequired bool           `json:"launchSetupRequired"`
-	Run                 map[string]any `json:"run"`
-	Health              *Health        `json:"health"`
+	Services            []*Service  `json:"services"`
+	Conflicts           []*Service  `json:"conflicts"`
+	PathExists          bool        `json:"pathExists"`
+	ExtraServices       bool        `json:"extraServices"`
+	Status              string      `json:"status"`
+	StatusMessage       string      `json:"statusMessage"`
+	CanLaunch           bool        `json:"canLaunch"`
+	LaunchSetupRequired bool        `json:"launchSetupRequired"`
+	Run                 *RunSummary `json:"run"`
+	Health              *Health     `json:"health"`
+}
+
+// RunSummary contains only the runner state exposed to clients, without process
+// identities, environment values or filesystem references used by the supervisor.
+type RunSummary struct {
+	RunID      string `json:"runId"`
+	StartedAt  string `json:"startedAt"`
+	Phase      string `json:"phase"`
+	UpdatedAt  string `json:"updatedAt,omitempty"`
+	FinishedAt string `json:"finishedAt,omitempty"`
+	ExitCode   *int   `json:"exitCode,omitempty"`
 }
 type Snapshot struct {
 	Revision        int             `json:"revision"`

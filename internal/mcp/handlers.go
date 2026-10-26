@@ -15,6 +15,7 @@ import (
 
 const maxRegistrationBytes = 32 << 10
 
+// The destination varies by tool; each caller supplies a concrete argument struct.
 func decodeArguments(rawArguments json.RawMessage, target any) error {
 	if len(rawArguments) == 0 {
 		rawArguments = json.RawMessage("{}")
@@ -30,6 +31,7 @@ func decodeArguments(rawArguments json.RawMessage, target any) error {
 	return decoder.Decode(target)
 }
 
+// This dispatch boundary returns several concrete result types to the JSON encoder.
 func (server *Server) call(name string, rawArguments json.RawMessage) (any, error) {
 	switch name {
 	case "list_projects":
@@ -96,69 +98,55 @@ func (server *Server) projectStatus() (*inventory.Snapshot, error) {
 	return snapshot, nil
 }
 
-func (server *Server) checkPort(rawArguments json.RawMessage) (any, error) {
+func (server *Server) checkPort(rawArguments json.RawMessage) (portCheckResult, error) {
 	var arguments struct {
 		Port int `json:"port"`
 	}
 	if err := decodeArguments(rawArguments, &arguments); err != nil {
-		return nil, err
+		return portCheckResult{}, err
 	}
 
 	if arguments.Port < 1 || arguments.Port > 65535 {
-		return nil, errors.New("Port must be between 1 and 65535.")
+		return portCheckResult{}, errors.New("Port must be between 1 and 65535.")
 	}
 
 	snapshot, err := inventory.Capture(server.Store, server.Supervisor.Inspector)
 	if err != nil {
-		return nil, err
+		return portCheckResult{}, err
 	}
 
-	reservedBy := []string{}
-	listeners := []*inventory.Service{}
-
-	for _, project := range snapshot.Projects {
-		if slices.Contains(project.Ports, arguments.Port) {
-			reservedBy = append(reservedBy, project.Name)
-		}
+	portCheck := snapshot.CheckPort(arguments.Port)
+	for _, service := range portCheck.Listeners {
+		service.CanStop = false
+		service.StopToken = ""
 	}
 
-	for _, service := range snapshot.Services {
-		if slices.Contains(service.Ports, arguments.Port) {
-			service.CanStop = false
-			service.StopToken = ""
-			listeners = append(listeners, service)
-		}
-	}
-
-	return map[string]any{
-		"port":            arguments.Port,
-		"reservedBy":      reservedBy,
-		"listeners":       listeners,
-		"inspectionError": snapshot.InspectionError,
-		"available":       len(reservedBy) == 0 && len(listeners) == 0 && snapshot.InspectionError == nil,
+	return portCheckResult{
+		PortCheck: portCheck,
+		Available: portCheck.Available(),
 	}, nil
 }
 
-func (server *Server) discoverSkills(rawArguments json.RawMessage) (any, error) {
+func (server *Server) discoverSkills(rawArguments json.RawMessage) (discovery.Skills, error) {
 	var arguments struct {
 		Provider string `json:"provider"`
 	}
 	if err := decodeArguments(rawArguments, &arguments); err != nil {
-		return nil, err
+		return discovery.Skills{}, err
 	}
 
 	if arguments.Provider != "" && arguments.Provider != "codex" && arguments.Provider != "claude" {
-		return nil, errors.New("Provider must be codex or claude.")
+		return discovery.Skills{}, errors.New("Provider must be codex or claude.")
 	}
 
 	registry, err := server.Store.Read()
 	if err != nil {
-		return nil, err
+		return discovery.Skills{}, err
 	}
 
 	homeDirectory, err := os.UserHomeDir()
 	if err != nil {
-		return nil, err
+		return discovery.Skills{}, err
 	}
 
 	discovered := discovery.DiscoverSkills(registry.Projects, homeDirectory)
@@ -175,13 +163,13 @@ func (server *Server) discoverSkills(rawArguments json.RawMessage) (any, error) 
 	return discovered, nil
 }
 
-func (server *Server) registerProject(rawArguments json.RawMessage) (any, error) {
+func (server *Server) registerProject(rawArguments json.RawMessage) (catalog.RegistrationResult, error) {
 	if !server.AllowWrites {
-		return nil, errors.New("Catalog writes are disabled. Start MCP with --allow-writes to enable registration.")
+		return catalog.RegistrationResult{}, errors.New("Catalog writes are disabled. Start MCP with --allow-writes to enable registration.")
 	}
 
 	if len(rawArguments) > maxRegistrationBytes {
-		return nil, errors.New("Project registration is limited to 32 KB.")
+		return catalog.RegistrationResult{}, errors.New("Project registration is limited to 32 KB.")
 	}
 
 	var arguments struct {
@@ -189,21 +177,21 @@ func (server *Server) registerProject(rawArguments json.RawMessage) (any, error)
 		Revision int             `json:"revision"`
 	}
 	if err := decodeArguments(rawArguments, &arguments); err != nil {
-		return nil, err
+		return catalog.RegistrationResult{}, err
 	}
 
 	if arguments.Revision < 1 {
-		return nil, errors.New("Read list_projects and supply its current revision before saving.")
+		return catalog.RegistrationResult{}, errors.New("Read list_projects and supply its current revision before saving.")
 	}
 
 	registry, err := server.Store.Save(arguments.Project, arguments.Revision)
 	if err != nil {
-		return nil, err
+		return catalog.RegistrationResult{}, err
 	}
 
-	return map[string]any{
-		"ok":       true,
-		"id":       arguments.Project.ID,
-		"revision": registry.Revision,
+	return catalog.RegistrationResult{
+		OK:       true,
+		ID:       arguments.Project.ID,
+		Revision: registry.Revision,
 	}, nil
 }

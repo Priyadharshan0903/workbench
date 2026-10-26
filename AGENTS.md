@@ -24,3 +24,10 @@ CLI commands use Cobra constructors in internal/app/commands_*.go. Keep command/
 local to an invocation, preserve machine-readable stdout and documented exit codes, and keep
 help/argument validation free of catalog writes or service starts. Pin Go dependencies in
 go.mod/go.sum and include dependency licenses in both source and executable archives.
+
+Keep application JavaScript readable: descriptive names, blank lines between logical steps,
+named event handlers and small renderers. Do not minify first-party source files. Preserve
+escaping, reviewed launch/stop flows and preference compatibility during refactors.
+Use concrete Go structs for known request/response shapes and typed map values for known
+collections. Reserve any for generic JSON encoders/decoders and dispatch boundaries that
+carry multiple concrete payload types; do not hide it behind interface{} or type aliases.

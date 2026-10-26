@@ -196,10 +196,10 @@ func TestRunnerLifecycleDuplicateGuardReattachAndFailure(t *testing.T) {
 		return record != nil && record.ChildPID > 0 && reattached.ActiveRun(record)
 	})
 	second, e := reattached.Start(p.ID, plan.Fingerprint, r.Revision)
-	if e != nil || second["alreadyRunning"] != true {
+	if e != nil || !second.AlreadyRunning {
 		t.Fatalf("duplicate runner: %v %v", second, e)
 	}
-	if reattached.ReadRun(p.ID).RunID != first["runId"] {
+	if reattached.ReadRun(p.ID).RunID != first.RunID {
 		t.Fatal("duplicate start replaced run")
 	}
 	waitUntil(t, "website ready", func() bool {
@@ -278,7 +278,7 @@ func TestConcurrentStartsAcrossSupervisors(t *testing.T) {
 		s.Inspector = fixtureIdentityInspector(t, s.Inspector)
 	}
 	var wg sync.WaitGroup
-	results := make(chan map[string]any, 2)
+	results := make(chan StartResult, 2)
 	for _, s := range []*Supervisor{sup, other} {
 		wg.Add(1)
 		go func(s *Supervisor) {
@@ -294,7 +294,7 @@ func TestConcurrentStartsAcrossSupervisors(t *testing.T) {
 	close(results)
 	started := 0
 	for result := range results {
-		if result["runId"] != nil {
+		if result.RunID != "" {
 			started++
 		}
 	}

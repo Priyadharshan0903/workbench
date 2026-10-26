@@ -62,8 +62,8 @@ func inspectProject(root string, existing []catalog.Project) *Candidate {
 			Name            string                     `json:"name"`
 			Description     string                     `json:"description"`
 			Scripts         map[string]json.RawMessage `json:"scripts"`
-			Dependencies    map[string]any             `json:"dependencies"`
-			DevDependencies map[string]any             `json:"devDependencies"`
+			Dependencies    map[string]string          `json:"dependencies"`
+			DevDependencies map[string]string          `json:"devDependencies"`
 		}
 		if json.Unmarshal([]byte(source), &data) != nil {
 			return nil

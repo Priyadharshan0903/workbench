@@ -90,7 +90,13 @@ func (a *App) stopToken(s *inventory.Service) (string, error) {
 	}
 	endpoints := append([]string{}, s.Endpoints...)
 	sort.Strings(endpoints)
-	b, e := json.Marshal([]any{s.PID, birth, s.CWD, endpoints, s.ProjectID})
+	b, e := json.Marshal(processIdentity{
+		PID:       s.PID,
+		Birth:     birth,
+		CWD:       s.CWD,
+		Endpoints: endpoints,
+		ProjectID: s.ProjectID,
+	})
 	if e != nil {
 		return "", e
 	}
@@ -123,30 +129,33 @@ func (a *App) State() (*inventory.Snapshot, error) {
 	state.CSRFToken = a.CSRF
 	return state, nil
 }
-func (a *App) Stop(pid int, token string) (map[string]any, error) {
+func (a *App) Stop(pid int, token string) (ActionResult, error) {
 	if pid <= 1 || token == "" {
-		return nil, errors.New("Choose a currently listed service.")
+		return ActionResult{}, errors.New("Choose a currently listed service.")
 	}
 	state, e := inventory.Capture(a.Supervisor.Store, a.Supervisor.Inspector)
 	if e != nil {
-		return nil, e
+		return ActionResult{}, e
 	}
 	if state.InspectionError != nil {
-		return nil, errors.New("Process inspection is unavailable; no stop was attempted.")
+		return ActionResult{}, errors.New("Process inspection is unavailable; no stop was attempted.")
 	}
 	for _, s := range state.Services {
 		if s.PID == pid && s.CanStop {
 			expected, e := a.stopToken(s)
 			if e != nil || !hmac.Equal([]byte(token), []byte(expected)) {
-				return nil, errors.New("The process changed since it was listed. Refresh and inspect it again.")
+				return ActionResult{}, errors.New("The process changed since it was listed. Refresh and inspect it again.")
 			}
 			if e = a.Signal(pid, syscall.SIGTERM); e != nil {
-				return nil, e
+				return ActionResult{}, e
 			}
-			return map[string]any{"ok": true, "message": fmt.Sprintf("Sent a graceful stop request to PID %d. Refresh to verify it exited.", pid)}, nil
+			return ActionResult{
+				OK:      true,
+				Message: fmt.Sprintf("Sent a graceful stop request to PID %d. Refresh to verify it exited.", pid),
+			}, nil
 		}
 	}
-	return nil, errors.New("This process is no longer a stoppable registered web service. Refresh the list.")
+	return ActionResult{}, errors.New("This process is no longer a stoppable registered web service. Refresh the list.")
 }
 func (a *App) Skills(force bool) (discovery.Skills, error) {
 	a.skillsMu.Lock()
@@ -276,7 +285,7 @@ func (a *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if a.Reload == nil {
 			e = errors.New("Engine reload is unavailable in this session.")
 		} else {
-			result = map[string]any{"ok": true, "message": "Reloading this Workbench engine. Project runners stay active."}
+			result = ActionResult{OK: true, Message: "Reloading this Workbench engine. Project runners stay active."}
 			defer func() { go func() { time.Sleep(300 * time.Millisecond); a.Reload() }() }()
 		}
 	default:
@@ -294,7 +303,14 @@ func (a *App) get(w http.ResponseWriter, r *http.Request) {
 	var e error
 	switch r.URL.Path {
 	case "/api/health":
-		result = map[string]any{"ok": true, "app": "workbench", "version": 3, "runtime": "go", "sourceStamp": a.Stamp, "sourceRoot": a.Supervisor.Store.Root}
+		result = engineHealth{
+			OK:          true,
+			App:         "workbench",
+			Version:     3,
+			Runtime:     "go",
+			SourceStamp: a.Stamp,
+			SourceRoot:  a.Supervisor.Store.Root,
+		}
 	case "/api/state":
 		result, e = a.State()
 	case "/api/registry":

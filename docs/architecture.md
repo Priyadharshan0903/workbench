@@ -85,6 +85,19 @@ domain variables. Separate logical steps with blank lines, use keyed multiline l
 protocol objects, and extract functions at meaningful responsibility boundaries. Standard Go
 conventions such as `err` and short loop indexes remain appropriate. Format Go files with gofmt.
 
+Known data shapes use concrete structs: catalog registration acknowledgements, port checks,
+public run summaries, launch/stop results, health responses and MCP schemas/results. Keep
+`any` at JSON encoding/decoding and method-dispatch boundaries where the payload type actually
+varies. Protocol tests may decode heterogeneous or deliberately invalid fixtures dynamically.
+Do not replace `any` with an alias or `interface{}` just to hide its use.
+
+`web/static/app.js` remains a plain browser script with no production npm build step. It keeps
+state and preferences explicit, uses named card renderers and event handlers, separates form
+parsing from website validation, and groups initialization/event bindings at the end. Templates
+escape external values before inserting HTML. Keep this first-party source formatted and readable;
+vendored dependencies retain their upstream distribution format. Run all four UI suites after
+changes to rendering, bindings, preference migration or reviewed launch/stop flows.
+
 ## Tests and changes
 
 Go tests live beside their package. Cross-package black-box tests use an external test package;

@@ -9,12 +9,13 @@ import (
 	"strings"
 
 	"workbench/internal/catalog"
+	"workbench/internal/inventory"
 )
 
 type LogOutput struct {
-	Text    string         `json:"text"`
-	Message string         `json:"message"`
-	Run     map[string]any `json:"run,omitempty"`
+	Text    string                `json:"text"`
+	Message string                `json:"message"`
+	Run     *inventory.RunSummary `json:"run,omitempty"`
 }
 
 var logFilename = regexp.MustCompile(`^[a-z0-9-]+-[a-f0-9]{16}\.log$`)

@@ -1,8 +1,8 @@
 # Go migration
 
 This branch provides a Go runtime and CLI, with embedded frontend assets and the
-existing dashboard's JSON API. Its CLI uses Cobra; the engine and MCP protocol use the Go
-standard library. The UI keeps
+existing dashboard's JSON API. Its CLI uses Cobra, skill Markdown previews use Goldmark,
+and the HTTP/MCP transports use the Go standard library. The UI keeps
 its board, preferences and interaction model; launch logs are the first htmx view.
 The dark dashboard uses neutral surfaces and locally bundled Inter 4.1. Workbench's own record
 is shown in the engine header and Diagnostics; project totals exclude it. Older theme preferences
@@ -143,3 +143,19 @@ HTTP health/action responses, shared port checks, catalog acknowledgements and M
 and results. MCP reuses the encoded tool object for structured content. Generic serialization
 and dispatch boundaries retain `any`; domain payloads do not use untyped maps. Verification
 covers optional JSON fields, a successful exit code of zero and explicit schema restrictions.
+
+## Skill workspace
+
+Agent skills now open in a wider viewer with Markdown/raw views, supporting files, reference
+navigation, clipboard actions, bundle download and reviewed duplication. Personal/project
+instruction editing uses a draft, a before/after review and an explicit save. Backups and file
+revisions preserve existing work; stale requests return HTTP 409. Plugin-managed and built-in
+originals remain read-only, with a separate editable-copy flow.
+
+The new `internal/skills` package handles bounded access and writes; `web/static/skills.js`
+owns the browser draft and viewer. Public assets, archive allowlists and Goldmark license notices
+are updated. API writes retain same-origin/CSRF checks; file targets and destinations are resolved
+server-side. Tests use isolated homes/catalogs and never change installed skills. The fifth UI
+suite covers rendering, copying, stale edits, draft retention, managed skills and selection races.
+No skill is executed or automatically activated by these flows. Browser screenshot inspection
+remains unavailable because Chrome exits before rendering in this host, including the elevated retry.

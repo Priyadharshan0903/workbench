@@ -18,7 +18,7 @@ func SourceFiles(root string) ([]string, error) {
 	files := []string{"go.mod", "go.sum", ".gitignore", "Open Workbench.command", "README.md", "AGENTS.md", "Makefile"}
 	files = append(files, dependencyLicenses...)
 	assets := []string{
-		"web/static/index.html", "web/static/app.js", "web/static/styles.css", "web/static/board-grid.svg", "web/static/favicon.svg",
+		"web/static/index.html", "web/static/app.js", "web/static/skills.js", "web/static/styles.css", "web/static/board-grid.svg", "web/static/favicon.svg",
 		"web/static/vendor/htmx.min.js", "web/static/vendor/HTMX-LICENSE", "web/static/vendor/README.md",
 		"web/static/fonts/InterVariable.woff2", "web/static/fonts/INTER-LICENSE.txt", "web/static/fonts/README.md",
 		"web/templates/logs.html",
@@ -76,6 +76,7 @@ var dependencyLicenses = []string{
 	"third_party/licenses/cobra.txt",
 	"third_party/licenses/pflag.txt",
 	"third_party/licenses/mousetrap.txt",
+	"third_party/licenses/goldmark.txt",
 }
 
 func Create(root, output string, runtimeOnly bool) error {

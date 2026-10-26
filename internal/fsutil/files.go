@@ -11,8 +11,12 @@ import (
 )
 
 func SecretPath(path string) bool {
-	for _, part := range strings.Split(filepath.Clean(path), string(os.PathSeparator)) {
-		if part == ".env" || strings.HasPrefix(part, ".env.") {
+	parts := strings.Split(filepath.Clean(path), string(os.PathSeparator))
+	for index, part := range parts {
+		part = strings.ToLower(part)
+		if part == ".env" || strings.HasPrefix(part, ".env.") || part == ".ssh" || part == ".aws" ||
+			part == ".gnupg" || part == ".azure" ||
+			(part == "gcloud" && index > 0 && strings.EqualFold(parts[index-1], ".config")) {
 			return true
 		}
 	}

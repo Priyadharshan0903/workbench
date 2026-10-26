@@ -87,6 +87,21 @@ Favourites, recent opens, board order, layout and theme are stored in your brows
 records are on disk and shared by the dashboard and CLI. **Export project registry** makes a
 portable catalog backup; `registry.previous.json` contains only the preceding write.
 
+## Skill files
+
+Select **Agent skills** and open a skill to preview its instructions, read raw Markdown, follow
+bundled references, and copy instructions or paths. **Copy & export** downloads a filtered ZIP
+or creates a reviewed copy in a listed personal/project destination. The source is preserved.
+
+For writable personal or project instructions, choose **Edit instructions**, then **Review
+changes** and **Save changes**. Newer disk edits are rejected; your draft stays available to copy.
+Backups are kept in `.runtime/skill-backups/`. Plugin-managed originals offer **Make editable
+copy**. Supporting files are viewable/copyable; the editor changes `SKILL.md` only.
+
+Bundle limits are 400 files, 16 MB total, 4 MB per supporting file and 10 directory levels.
+Instruction editing and text preview are limited to 500 KB. Exclusions appear before copying;
+external references are preserved and activation remains an agent-side decision.
+
 ## CLI
 
 For the compiled release workflow, all command options and exit codes, see the
@@ -114,6 +129,8 @@ forward to the Go binary in source checkouts. New automation should invoke the e
 - `.runtime/local.json`: optional engine port.
 - `.runtime/server.log`: engine launch/reload errors.
 - `.runtime/runs/`: detached runner state; `.runtime/logs/`: bounded project output.
+- `.runtime/skill-backups/`: previous instruction files from explicit skill saves.
+- `.runtime/skill-locks/`: coordination for concurrent skill edits by this installation.
 
 An occupied port never triggers automatic cleanup. Missing runtimes or dependencies need to be
 installed for the affected project. Update moved paths, incorrect URLs and ports in project

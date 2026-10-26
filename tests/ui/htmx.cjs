@@ -4,7 +4,7 @@ const {JSDOM,VirtualConsole}=require(process.env.JSDOM_MODULE||'jsdom');
 const root=path.resolve(__dirname,'../..');let fragmentHits=0,failFragment=false,dom;
 const project={id:'sample',name:'Sample project',description:'Fixture',kind:'web',path:'/tmp/sample',url:'http://127.0.0.1:3000/',ports:[3000],lifecycle:'active',owner:'Tester',launch:'echo ready',maintenance:'',docs:'README.md',status:'failed',statusMessage:'Fixture failed',services:[],conflicts:[],pathExists:true,extraServices:false,canLaunch:true,run:{runId:'fixture',phase:'failed'}};
 const state={projects:[project],services:[],revision:1,inspectionError:null,scannedAt:new Date().toISOString(),registryPath:'/tmp/workbench/registry.json',csrfToken:'fixture',features:{launch:true,discovery:true,logs:true,readiness:true,htmlLogs:true},discoveryRoots:[],controlWarnings:[]};
-const files={'/':'index.html','/app.js':'app.js','/styles.css':'styles.css','/vendor/htmx.min.js':'vendor/htmx.min.js','/fonts/InterVariable.woff2':'fonts/InterVariable.woff2','/favicon.svg':'favicon.svg','/board-grid.svg':'board-grid.svg'};
+const files={'/':'index.html','/app.js':'app.js','/skills.js':'skills.js','/styles.css':'styles.css','/vendor/htmx.min.js':'vendor/htmx.min.js','/fonts/InterVariable.woff2':'fonts/InterVariable.woff2','/favicon.svg':'favicon.svg','/board-grid.svg':'board-grid.svg'};
 const server=http.createServer((req,res)=>{
  const url=new URL(req.url,'http://localhost');
  res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");

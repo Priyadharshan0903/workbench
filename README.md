@@ -231,6 +231,26 @@ Favourites, recent opens, board order, layout and theme are stored in this brows
 `registry.json`, independently of browser preferences. Browser storage failure does not discard
 project records. API failures retain existing cards and report the stale connection.
 
+## Read, copy and edit agent skills
+
+Open **Agent skills**, then select a skill to read its Markdown preview or raw `SKILL.md`.
+The file selector opens supporting text files and bundled references. Copy instructions or the
+file path to the clipboard; **Copy & export** also offers a complete filtered ZIP and duplication
+into a listed personal or project skill folder. Review the destination and folder name before
+creating a copy. Existing folders are never merged or replaced.
+
+Personal, shared and project instruction files can be edited through **Edit instructions →
+Review changes → Save changes**. Drafts survive failed saves; closing with unsaved changes asks
+whether to keep or discard the draft. A newer file revision causes a conflict instead of an
+overwrite. Each successful save keeps the previous version under `.runtime/skill-backups/`.
+
+Plugin-managed and built-in originals remain read-only. **Make editable copy** includes files
+inside the skill folder and opens the new copy for editing. External references stay unchanged.
+Copies exclude hidden/configuration files, credential files, dependencies and symbolic links;
+the workspace lists exclusions and disables bundle copying when size/traversal limits are reached.
+Raw HTML and unsafe URLs are disabled in Markdown previews, and previews do not load remote images.
+These actions do not run a skill or automatically configure its activation in an agent.
+
 ## What status means
 
 | State | Evidence / next action |
@@ -332,7 +352,8 @@ stopping, readiness, duplicate launches, detached runner reattachment, log limit
 HTTP boundaries, embedded assets and clean archives. `make check` includes the race detector,
 `go vet` and JavaScript syntax validation.
 
-The Go CLI uses Cobra, with versions pinned in `go.mod` and checksums in `go.sum`. The first
+The Go CLI uses Cobra and skill previews use Goldmark, with versions pinned in `go.mod` and
+checksums in `go.sum`. The first
 source build needs access to the Go module proxy or a populated module cache. Executable
 packages still run without Go, Python or Node installed. There is no production npm dependency.
 Go dependency licenses are bundled under `third_party/licenses` in both distribution formats.

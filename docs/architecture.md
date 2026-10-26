@@ -14,6 +14,7 @@ internal/
   catalog/                  Project validation, registry revisions and atomic transactions
   inventory/                TCP ownership inspection and workspace snapshots
   discovery/                Bounded project and agent-skill discovery
+  skills/                   Discovered file access, Markdown previews, reviewed edits and copies
   launch/                   Reviewed plans, argv parsing, detached runners, readiness and logs
   httpapi/                  Loopback HTTP routes, CSRF/origin checks and verified stop controls
   mcp/                      Local stdio protocol and agent tools; no service start/stop tools
@@ -55,11 +56,12 @@ the user's data.
 ```text
 cmd/workbench → app
 app          → httpapi, mcp, launch, inventory, catalog, discovery, distribution
-httpapi      → launch, inventory, catalog, discovery, web
+httpapi      → launch, inventory, catalog, discovery, skills, web
 mcp          → launch, inventory, catalog, discovery
 launch       → catalog, inventory, fsutil
 inventory    → catalog, fsutil
 discovery    → catalog, fsutil
+skills       → discovery, catalog, fsutil
 catalog      → fsutil
 distribution → fsutil
 ```
@@ -95,8 +97,22 @@ Do not replace `any` with an alias or `interface{}` just to hide its use.
 state and preferences explicit, uses named card renderers and event handlers, separates form
 parsing from website validation, and groups initialization/event bindings at the end. Templates
 escape external values before inserting HTML. Keep this first-party source formatted and readable;
-vendored dependencies retain their upstream distribution format. Run all four UI suites after
+vendored dependencies retain their upstream distribution format. Run all five UI suites after
 changes to rendering, bindings, preference migration or reviewed launch/stop flows.
+
+`web/static/skills.js` owns the skill viewer/editor and its unsaved draft. The dashboard opens it
+only when the engine advertises `skillFiles`. File APIs resolve discovered IDs on the server;
+relative files must appear in the bounded bundle inventory. Go 1.24 `os.Root` operations contain
+bundle reads and new copy files. Skill content is data and is never executed by these APIs.
+
+Goldmark renders previews with raw HTML/unsafe links disabled. The browser further restricts
+preview elements and removes images before attaching the preview. Personal/project instruction
+saves verify a content revision, coordinate with a file lock, keep a private runtime backup and
+atomically replace the file after a final identity/revision check. Managed originals are read-only.
+Duplication reserves a new destination folder exclusively and writes SKILL.md last; it does not
+merge with an existing skill. Copies preserve supporting files and executable bits, exclude
+listed private/link/dependency entries and keep external references unchanged. Copy write failures
+report the new incomplete folder rather than deleting unknown files. No new MCP write tools are added.
 
 ## Tests and changes
 

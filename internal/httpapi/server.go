@@ -31,6 +31,7 @@ import (
 	"workbench/internal/discovery"
 	"workbench/internal/inventory"
 	"workbench/internal/launch"
+	"workbench/internal/skills"
 	"workbench/web"
 )
 
@@ -43,14 +44,27 @@ type App struct {
 	Assets      fs.FS
 	Reload      func()
 	Signal      func(int, syscall.Signal) error
+	SkillFiles  *skills.Library
 	skillsMu    sync.Mutex
 	skillsAt    time.Time
 	skillsCache discovery.Skills
 }
 
-func New(s *launch.Supervisor, port int) *App {
-	return &App{Supervisor: s, Port: port, CSRF: randomToken(), SigningKey: randomToken(), Stamp: BinaryStamp(s.Executable), Assets: web.Static, Signal: syscall.Kill}
+func New(supervisor *launch.Supervisor, port int) *App {
+	home, _ := os.UserHomeDir()
+
+	return &App{
+		Supervisor: supervisor,
+		Port:       port,
+		CSRF:       randomToken(),
+		SigningKey: randomToken(),
+		Stamp:      BinaryStamp(supervisor.Executable),
+		Assets:     web.Static,
+		Signal:     syscall.Kill,
+		SkillFiles: &skills.Library{Store: supervisor.Store, Home: home},
+	}
 }
+
 func BinaryStamp(path string) string {
 	f, e := os.Open(path)
 	if e != nil {
@@ -126,6 +140,7 @@ func (a *App) State() (*inventory.Snapshot, error) {
 		}
 	}
 	state.Features = map[string]bool{"launch": true, "discovery": true, "logs": true, "readiness": true, "htmlLogs": true}
+	state.Features["skillFiles"] = true
 	state.CSRFToken = a.CSRF
 	return state, nil
 }
@@ -163,12 +178,11 @@ func (a *App) Skills(force bool) (discovery.Skills, error) {
 	if !force && !a.skillsAt.IsZero() && time.Since(a.skillsAt) < 30*time.Second {
 		return a.skillsCache, nil
 	}
-	r, e := a.Supervisor.Store.Read()
-	if e != nil {
-		return discovery.Skills{}, e
+	discovered, err := a.SkillFiles.Discover()
+	if err != nil {
+		return discovery.Skills{}, err
 	}
-	home, _ := os.UserHomeDir()
-	a.skillsCache = discovery.DiscoverSkills(r.Projects, home)
+	a.skillsCache = discovered
 	a.skillsAt = time.Now()
 	return a.skillsCache, nil
 }
@@ -200,6 +214,10 @@ func (a *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	mimeType, _, e := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	if e != nil || mimeType != "application/json" {
 		failure(w, 400, errors.New("A JSON request up to 32 KB is required."))
+		return
+	}
+	if strings.HasPrefix(r.URL.Path, "/api/skill/") {
+		a.writeSkill(w, r)
 		return
 	}
 	body, e := io.ReadAll(http.MaxBytesReader(w, r.Body, 32768))
@@ -317,6 +335,15 @@ func (a *App) get(w http.ResponseWriter, r *http.Request) {
 		result, e = a.Supervisor.Store.Read()
 	case "/api/skills":
 		result, e = a.Skills(r.URL.Query().Get("refresh") == "1")
+	case "/api/skill":
+		result, e = a.SkillFiles.View(r.URL.Query().Get("id"), r.URL.Query().Get("file"))
+		if e != nil {
+			skillFailure(w, e)
+			return
+		}
+	case "/api/skill/export":
+		a.exportSkill(w, r)
+		return
 	case "/api/launch-plan":
 		result, e = a.Supervisor.LaunchPlan(r.URL.Query().Get("id"))
 	case "/api/logs":
@@ -334,7 +361,7 @@ func (a *App) get(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	default:
-		files := map[string]string{"/": "index.html", "/app.js": "app.js", "/styles.css": "styles.css", "/board-grid.svg": "board-grid.svg", "/favicon.svg": "favicon.svg", "/vendor/htmx.min.js": "vendor/htmx.min.js", "/fonts/InterVariable.woff2": "fonts/InterVariable.woff2"}
+		files := map[string]string{"/": "index.html", "/app.js": "app.js", "/skills.js": "skills.js", "/styles.css": "styles.css", "/board-grid.svg": "board-grid.svg", "/favicon.svg": "favicon.svg", "/vendor/htmx.min.js": "vendor/htmx.min.js", "/fonts/InterVariable.woff2": "fonts/InterVariable.woff2"}
 		file, ok := files[r.URL.Path]
 		if !ok {
 			failure(w, 404, errors.New("Not found."))

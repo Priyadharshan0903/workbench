@@ -747,6 +747,15 @@ function showSkill(id) {
   const skill = workspaceState.skills?.skills.find((skill) => skill.id === id);
   if (!skill) return;
   workspaceState.detailId = null;
+  workspaceState.detailMode = 'skill';
+  if (workspaceState.snapshot?.features?.skillFiles && window.WorkbenchSkills) {
+    window.WorkbenchSkills.open(skill, {
+      requestJSON,
+      copyText,
+      onSaved: () => loadSkills(true),
+    });
+    return;
+  }
   query('#detail-eyebrow').textContent = 'Installed skill';
   query('#detail-body').innerHTML = `<h2 id="detail-title">${escapeHTML(skill.name)}</h2>
 <p class="dialog-intro">${escapeHTML(skill.description)}</p>
@@ -1160,6 +1169,7 @@ function handleWorkspaceClick(event) {
   const button = event.target.closest('button,a');
   if (!button) return;
   if (button.dataset.close) {
+    if (button.dataset.close === 'details' && window.WorkbenchSkills?.keepOpenIfDirty()) return;
     query('#' + button.dataset.close).close();
     return;
   }

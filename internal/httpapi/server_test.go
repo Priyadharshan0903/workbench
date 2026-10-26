@@ -35,7 +35,7 @@ func requestApp(a *App, method, path, body string, headers map[string]string) *h
 }
 func TestHTTPAssetsAndSameOrigin(t *testing.T) {
 	app := fixtureApp(t)
-	for _, path := range []string{"/api/health", "/api/state", "/api/registry", "/", "/app.js", "/styles.css", "/favicon.svg", "/vendor/htmx.min.js", "/fonts/InterVariable.woff2"} {
+	for _, path := range []string{"/api/health", "/api/state", "/api/registry", "/", "/app.js", "/skills.js", "/styles.css", "/favicon.svg", "/vendor/htmx.min.js", "/fonts/InterVariable.woff2"} {
 		res := requestApp(app, "GET", path, "", nil)
 		if res.Code != 200 {
 			t.Fatalf("%s: %d %s", path, res.Code, res.Body.String())

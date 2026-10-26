@@ -24,6 +24,7 @@ test:
 check: test
 	go vet ./...
 	$(NODE) --check web/static/app.js
+	$(NODE) --check web/static/skills.js
 
 check-ui:
 	NODE="$(NODE)" ./scripts/test-ui.sh

@@ -143,12 +143,12 @@ executable named `workbench` beside its writable catalog directory, or use `--ro
 
 ```sh
 make check
-JSDOM_MODULE=/absolute/path/to/jsdom make check-ui NODE=/path/to/node
 make package
 ```
 
-Use a Node version compatible with the installed jsdom (Node 24 is supported by the test setup).
-Go tests use isolated temporary fixtures; they do not stop catalog services.
+Node is used only for JavaScript syntax checks in `make check`; no frontend build is required.
+Go tests use isolated temporary fixtures; they do not stop catalog services. Browser interaction
+and visual QA are manual; the standalone UI test harness has been retired.
 
 `dist/Workbench-codebase.zip` contains Go source and tests. `dist/Workbench.zip` contains the
 current platform executable, launcher, setup files and htmx/Inter licenses. Neither contains your
@@ -166,5 +166,5 @@ See migration.md for the migration boundary and deferred work.
 ## Source organization
 
 The executable is built from `./cmd/workbench`. Use Make from the repository root; running
-`go build .` at the root is no longer applicable. Go package tests sit under `internal`, UI
-checks under `tests/ui`, and static sources under `web/static`. See [architecture.md](architecture.md).
+`go build .` at the root is no longer applicable. Go package tests sit under `internal` and
+static sources under `web/static`. See [architecture.md](architecture.md).

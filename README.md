@@ -148,7 +148,6 @@ HTTP readiness and runner progress. The internal `runner` subcommand is used by 
 | `make release` | Build the smaller release executable. |
 | `make test` | Run Go tests with the race detector. |
 | `make check` | Run race-enabled Go tests, vet and JavaScript syntax checks. |
-| `make check-ui` | Run the jsdom UI suites using `NODE` and optional `JSDOM_MODULE`. |
 | `make package` | Build the release executable and create both distribution ZIPs. |
 
 ## Repository layout
@@ -173,9 +172,7 @@ web/
     js/workspace/       Navigation, discovery, services, launches and logs
     css/                Theme tokens, shared controls and feature styles
   templates/            Server-rendered HTML fragments
-tests/ui/               Frontend interaction and browser checks
 scripts/                Developer tools and compatibility commands
-legacy/python/          Previous Python implementation and its tests
 docs/                   Setup, architecture, migration and design notes
 ```
 
@@ -346,7 +343,6 @@ not a native installer.
 
 ```sh
 make check
-JSDOM_MODULE=/absolute/path/to/jsdom make check-ui NODE=/path/to/node
 ```
 
 Go tests use temporary catalogs and service fixtures. They exercise validation and concurrent
@@ -357,40 +353,24 @@ HTTP boundaries, embedded assets and clean archives. `make check` includes the r
 
 Browser JavaScript uses native ES modules; `app.js` connects the feature controllers and
 initializes the page. CSS imports preserve the original cascade order. No frontend framework,
-npm build or development server is required. The UI test runner supplies Node's VM module flag
-for jsdom automatically; production browsers load the modules directly.
+npm build or development server is required. Browsers load the modules directly. Frontend
+interaction and visual checks are manual; the previous UI test harness has been removed.
 
 The Go CLI uses Cobra and skill previews use Goldmark, with versions pinned in `go.mod` and
 checksums in `go.sum`. The first
 source build needs access to the Go module proxy or a populated module cache. Executable
 packages still run without Go, Python or Node installed. There is no production npm dependency.
 Go dependency licenses are bundled under `third_party/licenses` in both distribution formats.
-htmx 2.0.11 is vendored with its upstream license;
-jsdom is test-only and needs Node 20.19+, 22.12+ or 24+ (use a runtime compatible with the installed
-jsdom version). The UI checks cover the dashboard, htmx log integration, first-run state, engine
-separation, theme migration and preference restoration.
+htmx 2.0.11 is vendored with its upstream license.
 
-Legacy Python modules remain in this branch as a reference during migration;
-`python3 -m unittest discover -s legacy/python/tests -v` checks the prior implementation. They are excluded
-from Go distribution archives. `scripts/compat/start.py`, `scripts/compat/registry.py` and `scripts/compat/package.py` forward old command
-invocations to Go.
+## Retired migration code
 
-The previous root-level Python paths have moved. Update any remaining external callers to
-the Go CLI or the explicit `scripts/compat/` paths; see [compatibility commands](scripts/compat/README.md).
+The previous Python backend and its tests have been removed, along with the standalone UI test
+harness and its runner. Go package tests and JavaScript syntax validation remain in `make check`.
+Manual frontend QA should cover projects, discovery, launch/stop review, logs, themes, and skill
+view/edit/copy flows after browser changes.
 
-## Retiring the Python files
-
-The compiled release already runs without Python. The `.py` files under `legacy/python`,
-`scripts/compat` and the optional instruction installer are retained for the migration.
-They can be removed once the Go rollout is verified; a full conversion of every frontend view
-to htmx is a separate task.
-
-Before removal, verify real process identity checks, project start/stop, engine reload and the
-native folder picker in a normal desktop session. Update external automation and agent
-instructions from `python3 registry.py ...` / `python3 start.py` to the Go CLI, and port or retire
-the optional `scripts/install_agent_instructions.py` helper. Then remove the legacy modules, compatibility
-wrappers and Python-only tests together, updating the setup/migration docs in the same change.
-
-The optional Playwright browser check is still available. Automated full-browser screenshot
-verification has not been established for this migration; functional tests do not establish
-visual verification.
+Optional Python forwarding commands remain under `scripts/compat`, and the agent instruction
+installer remains under `scripts`; neither is required by the Go application or included in
+executable archives. New automation should invoke `./workbench` directly; see
+[compatibility commands](scripts/compat/README.md). Earlier implementation history remains in Git.

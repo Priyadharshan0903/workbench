@@ -35,16 +35,11 @@ web/
     styles.css              Ordered CSS imports; preserves the existing cascade
     fonts/, vendor/         Bundled Inter and htmx
   templates/                Server-rendered HTML fragments
-tests/
-  ui/                       jsdom interaction tests and optional Playwright checks
 scripts/
-  test-ui.sh                Runs the UI suites without a production npm dependency
+  check-frontend.cjs        Syntax checks for first-party browser modules
   compat/                   Transitional Python commands that forward to the Go executable
   install_agent_instructions.py
                             Optional helper; does not install instructions automatically
-legacy/
-  python/                   Previous backend retained for migration verification
-    tests/                  Python-only regression and process fixtures
 docs/
   setup.md                  Installation and everyday use
   architecture.md           Package boundaries and repository conventions
@@ -137,13 +132,11 @@ code. Runner integration tests create isolated services and temporary catalogs.
 
 ```sh
 make check
-JSDOM_MODULE=/path/to/jsdom make check-ui NODE=/path/to/node
-python3 -m unittest discover -s legacy/python/tests -v
 ```
 
-The Python suite is a migration baseline, not a dependency of the Go application or its build.
-Compatibility commands moved to `scripts/compat`: prefer the direct Go CLI in new automation.
-The optional instruction installer now generates references to the Go executable.
+The legacy Python backend and standalone UI test harness have been retired. Browser interaction
+and visual QA are manual. Optional compatibility commands remain in `scripts/compat`: prefer the
+direct Go CLI in new automation. The instruction installer generates Go CLI references.
 
 ## Build and distribution
 
@@ -165,7 +158,7 @@ source layout: `/app.js` is backed by `web/static/app.js`, for example. Go HTML 
 under `web/templates` and are parsed from the same embedded filesystem.
 
 `internal/distribution` owns the archive allowlist. Source archives contain the Go command,
-internal packages and tests, web assets/templates, docs, UI checks and their shell runner.
+internal packages and tests, web assets/templates, docs and the JavaScript syntax checker.
 They include `go.mod`, `go.sum` and the Go dependency licenses. Source builds download the pinned
 modules if they are not cached; runtime archives carry the compiled code and license notices.
 Legacy Python, compatibility commands, personal records and runtime data are excluded.
@@ -174,10 +167,8 @@ licenses. When adding a browser asset, update both the embed list and the public
 Non-public distribution documents/licenses remain in the packaging allowlist.
 
 `make check` checks syntax for every browser module through `scripts/check-frontend.cjs`.
-`make check-ui` runs all five existing interaction suites. Their jsdom helper evaluates the
-actual import graph in an isolated browser context using Node's test-only VM module flag;
-the HTTP integration suite fetches modules and CSS through its local fixture server. This
-verifies wiring and interactions and does not establish visual QA.
+There is no standalone browser test harness. Manually check projects, discovery, reviewed
+launch/stop, logs, themes and skill view/edit/copy flows after frontend changes.
 
 An exported source archive is verified by building and testing it in a separate temporary
 directory; a successful build in the working checkout alone does not establish portability.

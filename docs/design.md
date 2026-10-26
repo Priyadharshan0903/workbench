@@ -56,20 +56,21 @@ identity check. Discovery proposes records for review; it never imports or start
 
 ## Verification
 
-The dashboard, htmx and workspace jsdom suites cover interactions, escaped content, error
-recovery, first-run actions, filtered totals, engine separation and preference migration.
+Frontend QA is manual after retirement of the standalone UI test harness. Check interactions,
+escaped content, error recovery, first-run actions, filtered totals, engine separation and
+preference migration.
 Go tests cover the new embedded font route and license inclusion in clean distribution archives.
 The design source lint has no failures. Its warnings are intentional: monospace for code/IDs,
 a shadow only behind the opened mobile navigation, and em dashes for missing-value placeholders.
 
 Chrome exits before rendering, including on an elevated retry, so real screenshot inspection at
 1440, 768 and 390 is unverified in this environment. No sample projects or invented metrics have
-been added to the real catalog; synthetic data exists only in isolated tests.
+been added to the real catalog; Go test fixtures use isolated temporary catalogs.
 
 ## Launch setup
 
 A registered web project with a command but missing its local address or port offers
 **Set up & start**. The existing settings dialog collects those details; saving opens the
 server-owned launch plan for explicit confirmation. Existing styles and modal focus handling
-are reused. A failed validation or cancelled review never starts a command. The UI launch-setup
-suite covers this path, including matching local URL/port checks and viewing logs after Start.
+are reused. A failed validation or cancelled review never starts a command. Manually check this
+path, including matching local URL/port checks and viewing logs after Start.

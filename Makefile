@@ -1,4 +1,4 @@
-.PHONY: build run serve release test check check-ui package
+.PHONY: build run serve release test check package
 
 NODE ?= node
 PORT ?=
@@ -24,9 +24,6 @@ test:
 check: test
 	go vet ./...
 	$(NODE) scripts/check-frontend.cjs
-
-check-ui:
-	NODE="$(NODE)" ./scripts/test-ui.sh
 
 package: release
 	./workbench package

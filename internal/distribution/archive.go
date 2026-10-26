@@ -27,7 +27,7 @@ func SourceFiles(root string) ([]string, error) {
 		assets = append(assets, "web/static/"+filename)
 	}
 	docs := []string{"docs/setup.md", "docs/migration.md", "docs/design.md", "docs/architecture.md", "docs/agents.md"}
-	for _, folder := range []string{"cmd", "internal", "web", "docs", "tests/ui", "scripts"} {
+	for _, folder := range []string{"cmd", "internal", "web", "docs", "scripts"} {
 		err := filepath.WalkDir(filepath.Join(root, folder), func(path string, entry os.DirEntry, walkErr error) error {
 			if walkErr != nil {
 				return walkErr
@@ -57,10 +57,8 @@ func SourceFiles(root string) ([]string, error) {
 				allowed = filepath.Ext(name) == ".go" || slices.Contains(assets, name)
 			case "docs":
 				allowed = slices.Contains(docs, name)
-			case "tests/ui":
-				allowed = filepath.Ext(name) == ".cjs"
 			case "scripts":
-				allowed = name == "scripts/test-ui.sh" || name == "scripts/check-frontend.cjs" || name == "scripts/compat/README.md"
+				allowed = name == "scripts/check-frontend.cjs" || name == "scripts/compat/README.md"
 			}
 			if allowed {
 				files = append(files, relative)

@@ -42,9 +42,9 @@ reopening after changing Go or embedded public assets. Start can reload the same
 installation's Go engine after a rebuild; it leaves detached runners alive.
 
 Existing JSON catalogs need no conversion. Python CLI invocations in a source
-checkout forward to the binary. Legacy Python backend modules and their tests
-remain as a reference and rollback implementation; they are excluded from Go
-archives. The old engine can still serve public assets from disk: the log UI uses
+checkout forward to the binary through the optional `scripts/compat` helpers. The legacy
+Python backend and its tests have been removed; earlier implementations remain in Git history.
+The old engine can still serve public assets from disk: the log UI uses
 JSON when the engine does not advertise HTML-fragment support.
 
 Copy a catalog deliberately if moving installations. Browser preferences remain
@@ -65,9 +65,9 @@ browser preferences and opening a pending browser tab still need JavaScript.
 
 ## Verification limits
 
-`make check` runs race-enabled Go tests, vet and JS syntax checks. UI interaction
-tests cover the existing dashboard and real htmx swaps in jsdom. Temporary
-fixtures exercise runner execution, duplicate prevention, reattachment, readiness,
+`make check` runs race-enabled Go tests, vet and JS syntax checks. The standalone UI
+test harness has been removed; browser interaction and visual QA are manual. Temporary
+Go fixtures exercise runner execution, duplicate prevention, reattachment, readiness,
 logs and failures. Test fixture services are the only services tests stop.
 
 The current hosted macOS environment blocks `ps`, including after an elevated
@@ -77,12 +77,12 @@ separately exercise changed identities and protected/unmatched stop rejection.
 Production never substitutes an identity: unverifiable launches/stops are refused.
 In-place Go engine reload was exercised against this installation on port 8732. Validate real
 process birth checks and the native folder picker in a normal desktop terminal before using
-this build as the daily launcher. Retire the Python reference modules and wrappers after
-updating external automation and verifying these remaining desktop checks; the README records
-the removal sequence.
+this build as the daily launcher. The Python reference backend is retired. Optional forwarding
+wrappers remain for external automation; new callers should use the Go CLI.
 
 Full-browser screenshot verification remains blocked: Chrome exits before rendering, including
-on the elevated retry. Functional browser tests use jsdom and do not establish visual verification.
+on the elevated retry. Previous jsdom checks did not establish visual verification; that harness
+has since been removed at the user's request.
 Native signed installers are outside this migration. Runtime archives are specific to the build
 OS and architecture.
 
@@ -90,12 +90,12 @@ OS and architecture.
 
 The executable entry point is now `cmd/workbench`; backend responsibilities are separate
 `internal` packages with package-local tests. Embedded assets moved to `web/static` and log
-fragments to `web/templates`. UI checks moved to `tests/ui`. Setup, architecture, design and
-migration docs live under `docs`. See [architecture.md](architecture.md) for dependency direction.
+fragments to `web/templates`. The standalone UI checks were later retired. Setup, architecture,
+design and migration docs live under `docs`. See [architecture.md](architecture.md) for dependency direction.
 
-Legacy Python and its tests moved to `legacy/python`; forwarding entry points moved to
-`scripts/compat`. The optional instruction installer is in `scripts` and now generates Go CLI
-commands. These moves do not change the root executable, catalog format, data directory or
+The legacy Python backend and its tests were retired after migration. Optional forwarding
+entry points remain in `scripts/compat`. The optional instruction installer is in `scripts` and
+now generates Go CLI commands. These moves do not change the root executable, catalog format, data directory or
 public HTTP paths. External callers of root-level Python files need the new compatibility
 paths or the direct Go CLI.
 
@@ -155,8 +155,9 @@ originals remain read-only, with a separate editable-copy flow.
 The new `internal/skills` package handles bounded access and writes; `web/static/skills.js`
 owns the browser draft and viewer. Public assets, archive allowlists and Goldmark license notices
 are updated. API writes retain same-origin/CSRF checks; file targets and destinations are resolved
-server-side. Tests use isolated homes/catalogs and never change installed skills. The fifth UI
-suite covers rendering, copying, stale edits, draft retention, managed skills and selection races.
+server-side. Go tests use isolated homes/catalogs and never change installed skills. The former
+UI suite covered rendering, copying, stale edits, draft retention, managed skills and selection
+races; these frontend flows now require manual QA.
 No skill is executed or automatically activated by these flows. Browser screenshot inspection
 remains unavailable because Chrome exits before rendering in this host, including the elevated retry.
 
@@ -173,5 +174,5 @@ by this organization. HTMX log fragments and Go templates continue to work as be
 
 The explicit `web/assets.go` manifest is shared by HTTP serving and source archives. Nested
 modules/styles are embedded, served with their proper MIME types, and included in clean source
-exports. Existing UI suites load the same module graph in jsdom; no production bundler or Node
-dependency is introduced. Manual visual QA remains with the user for this change.
+exports. No production bundler or Node dependency is introduced. The UI test harness has since
+been retired; frontend interaction and visual QA remain manual.

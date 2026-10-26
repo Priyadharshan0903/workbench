@@ -20,15 +20,11 @@ make run
 
 This builds and starts or reuses Workbench in the background and opens your browser.
 Use `make run PORT=8732 NO_BROWSER=1` to select a port and skip the browser. Without `PORT`,
-the launcher uses `.runtime/local.json`, or 8730 on a fresh installation. For a foreground
+the Start command uses `.runtime/local.json`, or 8730 on a fresh installation. For a foreground
 engine on a free port, use `make serve PORT=8732`; Ctrl+C stops that engine.
 
-On macOS, **Open Workbench.command** runs the executable. If it is missing, the command tries
-to build it with an installed Go compiler. It does not rebuild an existing executable: run
-`make build` after source changes, then reopen the launcher.
-
-From an executable ZIP, extract into a writable folder and open **Open Workbench.command**,
-or run `./workbench start`. Use `./workbench start --no-browser` to print the address without
+From an executable ZIP, extract into a writable folder and run `./workbench start` from that
+folder. Use `./workbench start --no-browser` to print the address without
 opening a browser. `./workbench serve` runs the engine in the foreground.
 
 The first launch creates `registry.json` with Workbench's own record. Existing catalogs use
@@ -151,7 +147,7 @@ Go tests use isolated temporary fixtures; they do not stop catalog services. Bro
 and visual QA are manual; the standalone UI test harness has been retired.
 
 `dist/Workbench-codebase.zip` contains Go source and tests. `dist/Workbench.zip` contains the
-current platform executable, launcher, setup files and htmx/Inter licenses. Neither contains your
+current platform executable, setup files and htmx/Inter licenses. Neither contains your
 catalog, runtime settings, launch logs or credentials. Build each platform separately, for example:
 
 ```sh

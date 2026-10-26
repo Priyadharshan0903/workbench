@@ -50,7 +50,7 @@ third_party/
   licenses/                 Go dependency license notices for distribution
 ```
 
-The root holds the README, agent instructions, Go module, Makefile and macOS launcher. The
+The root holds the README, agent instructions, Go module and Makefile. The
 generated `workbench` executable stays at the installation root so existing CLI commands,
 catalog paths and engine reloads continue to work. It is ignored by Git, as are `dist/`,
 `.runtime/`, catalogs, logs and browser/runtime preferences. Source organization does not move
@@ -150,7 +150,7 @@ make package
 
 `make run` builds and starts/reuses the local engine. `make serve` builds and runs it in the
 foreground. Both pass an optional `PORT`; the background target also accepts `NO_BROWSER=1`.
-The launcher owns port selection and instance reuse, keeping Make a thin interface.
+The Start command owns port selection and instance reuse, keeping Make a thin interface.
 
 `web/embed.go` owns the explicit embedded-file list. `web/assets.go` owns the public URL-to-file
 manifest consumed by both HTTP serving and source packaging. Public URL paths stay independent of the
@@ -162,7 +162,7 @@ internal packages and tests, web assets/templates, docs and the JavaScript synta
 They include `go.mod`, `go.sum` and the Go dependency licenses. Source builds download the pinned
 modules if they are not cached; runtime archives carry the compiled code and license notices.
 Legacy Python, compatibility commands, personal records and runtime data are excluded.
-Runtime archives contain the root executable, launcher, setup/migration docs and third-party
+Runtime archives contain the root executable, setup/migration docs and third-party
 licenses. When adding a browser asset, update both the embed list and the public manifest.
 Non-public distribution documents/licenses remain in the packaging allowlist.
 

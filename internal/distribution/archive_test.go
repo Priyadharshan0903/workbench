@@ -21,7 +21,7 @@ func TestSourceArchiveExcludesPersonalDataAndContainsBuildInputs(t *testing.T) {
 	for _, name := range append([]string{"go.sum"}, dependencyLicenses...) {
 		testutil.Write(t, filepath.Join(root, name), "fixture")
 	}
-	for _, name := range []string{"go.mod", ".gitignore", "cmd/workbench/main.go", "internal/app/cli_test.go", "Open Workbench.command", "README.md", "docs/setup.md", "docs/migration.md", "AGENTS.md", "Makefile", "web/static/index.html", "web/static/app.js", "web/static/vendor/htmx.min.js", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/InterVariable.woff2", "web/static/fonts/INTER-LICENSE.txt", "web/embed.go", "web/templates/logs.html", "docs/architecture.md"} {
+	for _, name := range []string{"go.mod", ".gitignore", "cmd/workbench/main.go", "internal/app/cli_test.go", "README.md", "docs/setup.md", "docs/migration.md", "AGENTS.md", "Makefile", "web/static/index.html", "web/static/app.js", "web/static/vendor/htmx.min.js", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/InterVariable.woff2", "web/static/fonts/INTER-LICENSE.txt", "web/embed.go", "web/templates/logs.html", "docs/architecture.md"} {
 		testutil.Write(t, filepath.Join(root, name), "fixture")
 	}
 	for _, name := range []string{"registry.json", "registry.previous.json", ".runtime/local.json", ".runtime/logs/private.log", ".env", ".env.private", "start.py", "web/static/.env", "web/static/.env.private.js", "web/static/private-browser-preferences.js", "tests/__pycache__/private.pyc", "tests/ui/retired.cjs", "scripts/test-ui.sh", "legacy/python/server.py", "scripts/compat/start.py"} {
@@ -62,7 +62,7 @@ func TestRuntimeArchivePreservesExecutableMode(t *testing.T) {
 	for _, name := range dependencyLicenses {
 		testutil.Write(t, filepath.Join(root, name), "fixture")
 	}
-	for _, name := range []string{"workbench", "Open Workbench.command", "README.md", "docs/setup.md", "docs/migration.md", "docs/agents.md", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/INTER-LICENSE.txt"} {
+	for _, name := range []string{"workbench", "README.md", "docs/setup.md", "docs/migration.md", "docs/agents.md", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/INTER-LICENSE.txt"} {
 		testutil.Write(t, filepath.Join(root, name), "fixture")
 	}
 	os.Chmod(filepath.Join(root, "workbench"), 0755)
@@ -75,7 +75,7 @@ func TestRuntimeArchivePreservesExecutableMode(t *testing.T) {
 		t.Fatal(e)
 	}
 	defer archive.Close()
-	if len(archive.File) != 8+len(dependencyLicenses) {
+	if len(archive.File) != 7+len(dependencyLicenses) {
 		t.Fatal("unexpected runtime files")
 	}
 	for _, f := range archive.File {
@@ -89,7 +89,7 @@ func TestSourceArchiveRefusesSymlinkAssets(t *testing.T) {
 	for _, name := range append([]string{"go.sum"}, dependencyLicenses...) {
 		testutil.Write(t, filepath.Join(root, name), "fixture")
 	}
-	for _, name := range []string{"go.mod", ".gitignore", "Open Workbench.command", "README.md", "docs/setup.md", "docs/migration.md", "AGENTS.md", "Makefile"} {
+	for _, name := range []string{"go.mod", ".gitignore", "README.md", "docs/setup.md", "docs/migration.md", "AGENTS.md", "Makefile"} {
 		testutil.Write(t, filepath.Join(root, name), "fixture")
 	}
 	for _, dir := range []string{"cmd", "internal", "web/static", "docs", "scripts"} {

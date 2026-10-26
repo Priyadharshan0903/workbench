@@ -18,7 +18,7 @@ It opens the browser and returns to your terminal. It respects `.runtime/local.j
 this installation now defaults to port **8732**. A fresh installation defaults to **8730**.
 For an explicit port, use `make run PORT=8732`; add `NO_BROWSER=1` to skip opening a browser.
 
-On macOS, **Open Workbench.command** and the compiled CLI are also available:
+With a compiled executable, start Workbench directly:
 
 ```sh
 ./workbench start
@@ -34,8 +34,8 @@ The default address for a fresh installation is **http://127.0.0.1:8730/**. An o
 `.runtime/local.json` containing `{"port":8731}` selects another port. Check the shared local
 catalog and actual listeners before choosing one; an older installation may reserve these ports.
 
-The launcher reuses a healthy Go instance of this installation and refuses an occupied port or
-another runtime. After rebuilding, reopening the launcher reloads a changed Go engine in place;
+The Start command reuses a healthy Go instance of this installation and refuses an occupied port or
+another runtime. After rebuilding, running Start again reloads a changed Go engine in place;
 detached project runners keep their processes. It never stops an older Python installation to
 make room. Corrupt catalogs are reported rather than reset. A new installation gets its own
 empty catalog containing only Workbench.
@@ -73,8 +73,7 @@ There is currently no public CLI command for stopping a background engine or sta
 individual projects. Project launch and stop use the dashboard's reviewed confirmation flows.
 
 `--port` applies only to that invocation. To make a port the default, create
-`.runtime/local.json` with the following content before using the double-click launcher or
-`./workbench start` without a port:
+`.runtime/local.json` with the following content before using `./workbench start` without a port:
 
 ```json
 {"port":8732}
@@ -181,7 +180,7 @@ Go tests live beside their packages. The root `workbench` binary, catalogs, `.ru
 for package boundaries and the [setup guide](docs/setup.md) for installation.
 
 Build the entry point with `go build -o workbench ./cmd/workbench`, or use the Make targets.
-Existing `./workbench ...` commands and the double-click launcher continue to work.
+Start from source with `make run`, or use `./workbench start` after building.
 
 ## The everyday workflow
 
@@ -330,7 +329,7 @@ make build
 ./workbench package
 ```
 
-`dist/Workbench-codebase.zip` includes the Go source, tests, CLI, launcher, frontend assets,
+`dist/Workbench-codebase.zip` includes the Go source, tests, CLI, frontend assets,
 bundled htmx license and setup guide. Use `./workbench package --runtime-only` for
 `dist/Workbench.zip`, containing the executable for the machine you built on and its setup
 files. Build separately for each OS/architecture you want to distribute.

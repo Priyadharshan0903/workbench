@@ -28,7 +28,7 @@ migrate to dark once, preserving favourites, recent opens and arrangement.
   no redirect following. HTTP response alone does not establish ownership.
 - Bounded project discovery (including Go executable suggestions) and linked
   Codex/Claude skill discovery. Discovery never executes project configuration.
-- CLI catalog operations, portable macOS launcher and source/runtime ZIPs from
+- CLI catalog operations and source/runtime ZIPs from
   explicit allowlists, excluding personal catalog and runtime files.
 - Locally bundled htmx 2.0.11 and escaped Go HTML log fragments. The JSON logs API
   remains available. htmx eval, response scripts, style injection and history
@@ -38,7 +38,7 @@ migrate to dark once, preserving favourites, recent opens and arrangement.
 
 Build with `make build`; launch with `./workbench start`. Keep the executable in
 the installation folder, or pass the global `--root` option. Rebuild before
-reopening after changing Go or embedded public assets. Start can reload the same
+running Start again after changing Go or embedded public assets. Start can reload the same
 installation's Go engine after a rebuild; it leaves detached runners alive.
 
 Existing JSON catalogs need no conversion. Python CLI invocations in a source

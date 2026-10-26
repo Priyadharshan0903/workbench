@@ -18,6 +18,7 @@ import (
 	"workbench/internal/fsutil"
 	"workbench/internal/inventory"
 	"workbench/internal/launch"
+	"workbench/internal/mcp"
 )
 
 func printJSON(out io.Writer, v any) error {
@@ -33,7 +34,7 @@ func Run(args []string, input io.Reader, out, stderr io.Writer) (int, error) {
 	global.SetOutput(stderr)
 	root := global.String("root", defaultRoot(), "Installation/catalog folder (before subcommand)")
 	global.Usage = func() {
-		fmt.Fprintln(stderr, "Usage: workbench [--root FOLDER] <start|serve|list|status|register|lifecycle|context|skills|check-port|package> [options]")
+		fmt.Fprintln(stderr, "Usage: workbench [--root FOLDER] <start|serve|list|status|register|lifecycle|context|skills|check-port|package|mcp> [options]")
 	}
 	if e := global.Parse(args); e != nil {
 		if e == flag.ErrHelp {
@@ -87,6 +88,24 @@ func Run(args []string, input io.Reader, out, stderr io.Writer) (int, error) {
 	if command == "package" {
 		return 0, packageCLI(store, args, out, stderr)
 	}
+	if command == "mcp" {
+		flags := flag.NewFlagSet(command, flag.ContinueOnError)
+		flags.SetOutput(stderr)
+		writes := flags.Bool("allow-writes", false, "Expose revision-checked project registration (no process execution)")
+		if err := flags.Parse(args); err != nil {
+			if err == flag.ErrHelp {
+				return 0, nil
+			}
+			return 1, err
+		}
+		if flags.NArg() != 0 {
+			return 1, errors.New("Use mcp [--allow-writes].")
+		}
+		if _, err := store.Read(); err != nil {
+			return 1, err
+		}
+		return 0, mcp.New(store, *writes).Serve(input, out)
+	}
 	r, e := store.Read()
 	if e != nil {
 		return 1, e
@@ -124,11 +143,18 @@ func Run(args []string, input io.Reader, out, stderr io.Writer) (int, error) {
 		flags := flag.NewFlagSet(command, flag.ContinueOnError)
 		flags.SetOutput(stderr)
 		file := flags.String("file", "", "Project JSON file, or - for stdin")
+		revision := flags.Int("revision", 0, "Require this registry revision before saving")
 		if e = flags.Parse(args); e != nil {
+			if e == flag.ErrHelp {
+				return 0, nil
+			}
 			return 1, e
 		}
 		if *file == "" || flags.NArg() != 0 {
 			return 1, errors.New("Use register --file FILE (or - for stdin).")
+		}
+		if *revision < 0 {
+			return 1, errors.New("Registry revision must not be negative.")
 		}
 		var b []byte
 		if *file == "-" {
@@ -149,7 +175,7 @@ func Run(args []string, input io.Reader, out, stderr io.Writer) (int, error) {
 		if e = json.Unmarshal(b, &p); e != nil {
 			return 1, e
 		}
-		result, e := store.Save(p, 0)
+		result, e := store.Save(p, *revision)
 		if e != nil {
 			return 1, e
 		}

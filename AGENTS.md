@@ -15,3 +15,5 @@ Read docs/architecture.md before changing package boundaries. Keep Go tests besi
 packages, public assets/templates in web/, and UI checks in tests/ui/. Legacy Python is
 isolated in legacy/python/; scripts/compat/ contains transitional entry points.
 When adding an embedded asset, update web/embed.go and internal/distribution/archive.go.
+Agent access is documented in docs/agents.md. MCP defaults to read-only; optional catalog
+writes require revisions. MCP must not bypass the reviewed dashboard launch/stop controls.

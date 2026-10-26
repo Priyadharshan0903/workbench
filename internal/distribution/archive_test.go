@@ -43,7 +43,7 @@ func TestSourceArchiveExcludesPersonalDataAndContainsBuildInputs(t *testing.T) {
 }
 func TestRuntimeArchivePreservesExecutableMode(t *testing.T) {
 	root := t.TempDir()
-	for _, name := range []string{"workbench", "Open Workbench.command", "README.md", "docs/setup.md", "docs/migration.md", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/INTER-LICENSE.txt"} {
+	for _, name := range []string{"workbench", "Open Workbench.command", "README.md", "docs/setup.md", "docs/migration.md", "docs/agents.md", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/INTER-LICENSE.txt"} {
 		testutil.Write(t, filepath.Join(root, name), "fixture")
 	}
 	os.Chmod(filepath.Join(root, "workbench"), 0755)
@@ -56,7 +56,7 @@ func TestRuntimeArchivePreservesExecutableMode(t *testing.T) {
 		t.Fatal(e)
 	}
 	defer archive.Close()
-	if len(archive.File) != 7 {
+	if len(archive.File) != 8 {
 		t.Fatal("unexpected runtime files")
 	}
 	for _, f := range archive.File {

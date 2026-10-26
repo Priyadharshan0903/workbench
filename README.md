@@ -103,10 +103,12 @@ Run commands from the folder containing the executable. The global `--root` opti
 | `./workbench check-port PORT` | Check catalog reservations and live listeners before starting a service. |
 | `./workbench context PROJECT_ID` | Print the project's path, launch command, owner and maintenance handoff. |
 | `./workbench register --file FILE` | Add or replace a project from a JSON record; use `--file -` for stdin. |
+| `./workbench register --file FILE --revision N` | Save only if the catalog still has revision N. |
 | `./workbench lifecycle PROJECT_ID active` | Mark a catalog entry active. Also accepts `paused` or `archived`; does not stop services. |
 | `./workbench skills [--provider codex\|claude] [--json]` | Discover installed agent skill files. |
 | `./workbench package [--output FILE]` | Export a clean Go source ZIP. |
 | `./workbench package --runtime-only [--output FILE]` | Export the executable for its build OS/architecture, setup files and licenses. |
+| `./workbench mcp [--allow-writes]` | Serve local MCP tools over stdio; read-only by default. |
 
 Examples:
 
@@ -265,6 +267,11 @@ so closing the browser or reloading the engine does not stop project services. R
 forwards SIGTERM only to the child it created. Log history is retained locally.
 
 ## One catalog for humans and agents
+
+Claude Code and Codex can connect through `./workbench mcp`, or use the CLI directly.
+See the [agent integration guide](docs/agents.md) for client setup commands, tools, optional
+revision-checked registration and how process ports are identified. MCP does not launch or
+stop services; those actions retain the dashboard's reviewed confirmation flow.
 
 The UI and CLI share the same registry, locking, validation, backup and atomic writes:
 

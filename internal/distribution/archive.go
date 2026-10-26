@@ -22,7 +22,7 @@ func SourceFiles(root string) ([]string, error) {
 		"web/static/fonts/InterVariable.woff2", "web/static/fonts/INTER-LICENSE.txt", "web/static/fonts/README.md",
 		"web/templates/logs.html",
 	}
-	docs := []string{"docs/setup.md", "docs/migration.md", "docs/design.md", "docs/architecture.md"}
+	docs := []string{"docs/setup.md", "docs/migration.md", "docs/design.md", "docs/architecture.md", "docs/agents.md"}
 	for _, folder := range []string{"cmd", "internal", "web", "docs", "tests/ui", "scripts"} {
 		err := filepath.WalkDir(filepath.Join(root, folder), func(path string, entry os.DirEntry, walkErr error) error {
 			if walkErr != nil {
@@ -71,7 +71,7 @@ func SourceFiles(root string) ([]string, error) {
 	return files, nil
 }
 func Create(root, output string, runtimeOnly bool) error {
-	files := []string{"workbench", "Open Workbench.command", "README.md", "docs/setup.md", "docs/migration.md", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/INTER-LICENSE.txt"}
+	files := []string{"workbench", "Open Workbench.command", "README.md", "docs/setup.md", "docs/migration.md", "docs/agents.md", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/INTER-LICENSE.txt"}
 	var e error
 	if !runtimeOnly {
 		files, e = SourceFiles(root)

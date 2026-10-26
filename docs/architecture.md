@@ -16,6 +16,7 @@ internal/
   discovery/                Bounded project and agent-skill discovery
   launch/                   Reviewed plans, argv parsing, detached runners, readiness and logs
   httpapi/                  Loopback HTTP routes, CSRF/origin checks and verified stop controls
+  mcp/                      Local stdio protocol and agent tools; no service start/stop tools
   distribution/             Clean source/runtime archive creation
   fsutil/                   Bounded reads, path boundaries and atomic file replacement
   testutil/                 Temporary catalogs and inspection fixtures; tests only
@@ -36,6 +37,7 @@ legacy/
 docs/
   setup.md                  Installation and everyday use
   architecture.md           Package boundaries and repository conventions
+  agents.md                 Claude Code/Codex MCP setup and CLI integration
   migration.md              Rollout status and remaining desktop verification
   design.md                 Dashboard design and verification notes
 ```
@@ -50,8 +52,9 @@ the user's data.
 
 ```text
 cmd/workbench → app
-app          → httpapi, launch, inventory, catalog, discovery, distribution
+app          → httpapi, mcp, launch, inventory, catalog, discovery, distribution
 httpapi      → launch, inventory, catalog, discovery, web
+mcp          → launch, inventory, catalog, discovery
 launch       → catalog, inventory, fsutil
 inventory    → catalog, fsutil
 discovery    → catalog, fsutil

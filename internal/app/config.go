@@ -11,30 +11,35 @@ import (
 )
 
 func defaultRoot() string {
-	exe, _ := os.Executable()
-	dir := filepath.Dir(exe)
-	if strings.Contains(dir, "go-build") {
-		cwd, _ := os.Getwd()
-		return cwd
+	executablePath, _ := os.Executable()
+	executableDirectory := filepath.Dir(executablePath)
+	if strings.Contains(executableDirectory, "go-build") {
+		workingDirectory, _ := os.Getwd()
+		return workingDirectory
 	}
-	return dir
+
+	return executableDirectory
 }
+
 func configuredPort(root string) (int, error) {
-	b, e := fsutil.ReadBounded(filepath.Join(root, ".runtime/local.json"), 4096)
-	if os.IsNotExist(e) {
+	contents, err := fsutil.ReadBounded(filepath.Join(root, ".runtime/local.json"), 4096)
+	if os.IsNotExist(err) {
 		return 8730, nil
 	}
-	if e != nil {
-		return 0, e
+	if err != nil {
+		return 0, err
 	}
+
 	var config struct {
 		Port int `json:"port"`
 	}
-	if e = json.Unmarshal(b, &config); e != nil {
-		return 0, e
+	if err := json.Unmarshal(contents, &config); err != nil {
+		return 0, err
 	}
+
 	if config.Port < 1024 || config.Port > 65535 {
 		return 0, errors.New("Invalid local engine port in .runtime/local.json.")
 	}
+
 	return config.Port, nil
 }

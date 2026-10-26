@@ -1,7 +1,8 @@
 # Go migration
 
 This branch provides a Go runtime and CLI, with embedded frontend assets and the
-existing dashboard's JSON API. It uses the Go standard library only. The UI keeps
+existing dashboard's JSON API. Its CLI uses Cobra; the engine and MCP protocol use the Go
+standard library. The UI keeps
 its board, preferences and interaction model; launch logs are the first htmx view.
 The dark dashboard uses neutral surfaces and locally bundled Inter 4.1. Workbench's own record
 is shown in the engine header and Diagnostics; project totals exclude it. Older theme preferences
@@ -36,7 +37,7 @@ migrate to dark once, preserving favourites, recent opens and arrangement.
 ## Compatibility and rollout
 
 Build with `make build`; launch with `./workbench start`. Keep the executable in
-the installation folder, or pass `--root` before the subcommand. Rebuild before
+the installation folder, or pass the global `--root` option. Rebuild before
 reopening after changing Go or embedded public assets. Start can reload the same
 installation's Go engine after a rebuild; it leaves detached runners alive.
 
@@ -116,3 +117,16 @@ CLI are tested for protocol-only stdout, version negotiation, read-only defaults
 port-inspection failures, log masking and stale-write rejection. A real MCP SDK client connected,
 listed the tools/projects, read Branchroom and checked its port. No personal client configuration
 was registered automatically. See [agents.md](agents.md) for Claude Code/Codex commands.
+
+## CLI readability and Cobra migration
+
+The CLI now builds a fresh Cobra command tree for each invocation. Catalog, engine, inventory
+and integration commands live in separate `internal/app/commands_*.go` files. Existing command
+names, JSON shapes and exit codes are retained; help is available for every command without
+opening a catalog. Global `--root` also works after the subcommand. Invalid flags and argument
+counts fail before command work begins. Cobra provides the standard `completion` command.
+
+MCP framing, session dispatch, tool handlers and schemas are separate files with descriptive
+names, keyed literals and spacing between logical steps. Responses are serialized once before
+writing, with the same response bound and explicit short-write handling. Stdout remains protocol
+only. Cobra is pinned in `go.mod`/`go.sum`; dependency licenses accompany both archive formats.

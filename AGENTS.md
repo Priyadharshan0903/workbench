@@ -1,6 +1,6 @@
 # Workbench source
 
-Read README.md and docs/setup.md first. Production uses Go standard library only, with embedded local htmx assets.
+Read README.md and docs/setup.md first. Production uses Go with Cobra for the CLI and embedded local htmx assets.
 Before starting a server, inspect the local registry and live reservations with
 `./workbench status --json` and `./workbench check-port PORT`.
 Reuse a healthy instance of this installation. Do not stop unknown or duplicate
@@ -17,3 +17,10 @@ isolated in legacy/python/; scripts/compat/ contains transitional entry points.
 When adding an embedded asset, update web/embed.go and internal/distribution/archive.go.
 Agent access is documented in docs/agents.md. MCP defaults to read-only; optional catalog
 writes require revisions. MCP must not bypass the reviewed dashboard launch/stop controls.
+
+Use descriptive names for project records, registries, snapshots and errors. Keep blank lines
+between logical steps and functions, and expand dense literals into readable keyed fields.
+CLI commands use Cobra constructors in internal/app/commands_*.go. Keep command/flag state
+local to an invocation, preserve machine-readable stdout and documented exit codes, and keep
+help/argument validation free of catalog writes or service starts. Pin Go dependencies in
+go.mod/go.sum and include dependency licenses in both source and executable archives.

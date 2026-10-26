@@ -90,8 +90,10 @@ This release runs on loopback as a personal local tool; it is not a public multi
 
 ## CLI reference
 
-Run commands from the folder containing the executable. The global `--root` option goes
-**before** the subcommand and selects the folder containing the catalog and `.runtime` data.
+Run commands from the folder containing the executable. The CLI uses Cobra for commands,
+help and argument validation. The global `--root` option can go before or after the subcommand
+and selects the folder containing the catalog and `.runtime` data. Use `COMMAND --help` for
+command-specific options; `./workbench completion --help` describes shell completion setup.
 
 | Command | Purpose |
 | --- | --- |
@@ -330,7 +332,11 @@ stopping, readiness, duplicate launches, detached runner reattachment, log limit
 HTTP boundaries, embedded assets and clean archives. `make check` includes the race detector,
 `go vet` and JavaScript syntax validation.
 
-Production has no Go module or npm dependencies. htmx 2.0.11 is vendored with its upstream license;
+The Go CLI uses Cobra, with versions pinned in `go.mod` and checksums in `go.sum`. The first
+source build needs access to the Go module proxy or a populated module cache. Executable
+packages still run without Go, Python or Node installed. There is no production npm dependency.
+Go dependency licenses are bundled under `third_party/licenses` in both distribution formats.
+htmx 2.0.11 is vendored with its upstream license;
 jsdom is test-only and needs Node 20.19+, 22.12+ or 24+ (use a runtime compatible with the installed
 jsdom version). The UI checks cover the dashboard, htmx log integration, first-run state, engine
 separation, theme migration and preference restoration.

@@ -15,7 +15,8 @@ import (
 
 // Package from an explicit source allowlist. Never traverse catalog/runtime data.
 func SourceFiles(root string) ([]string, error) {
-	files := []string{"go.mod", ".gitignore", "Open Workbench.command", "README.md", "AGENTS.md", "Makefile"}
+	files := []string{"go.mod", "go.sum", ".gitignore", "Open Workbench.command", "README.md", "AGENTS.md", "Makefile"}
+	files = append(files, dependencyLicenses...)
 	assets := []string{
 		"web/static/index.html", "web/static/app.js", "web/static/styles.css", "web/static/board-grid.svg", "web/static/favicon.svg",
 		"web/static/vendor/htmx.min.js", "web/static/vendor/HTMX-LICENSE", "web/static/vendor/README.md",
@@ -70,8 +71,16 @@ func SourceFiles(root string) ([]string, error) {
 	sort.Strings(files)
 	return files, nil
 }
+
+var dependencyLicenses = []string{
+	"third_party/licenses/cobra.txt",
+	"third_party/licenses/pflag.txt",
+	"third_party/licenses/mousetrap.txt",
+}
+
 func Create(root, output string, runtimeOnly bool) error {
 	files := []string{"workbench", "Open Workbench.command", "README.md", "docs/setup.md", "docs/migration.md", "docs/agents.md", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/INTER-LICENSE.txt"}
+	files = append(files, dependencyLicenses...)
 	var e error
 	if !runtimeOnly {
 		files, e = SourceFiles(root)

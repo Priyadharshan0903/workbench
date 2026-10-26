@@ -65,7 +65,7 @@ func fixture(t *testing.T, writes bool) *Server {
 	return s
 }
 func TestLifecycleProtocolNegotiationAndNoNotificationOutput(t *testing.T) {
-	for _, version := range append(append([]string{}, protocols...), "2099-01-01") {
+	for _, version := range append(append([]string{}, supportedProtocols...), "2099-01-01") {
 		store, _ := testutil.FixtureStore(t)
 		s := New(store, false)
 		items := messages(t, s, initialize(version)+rpc(2, "tools/list", map[string]any{})+rpc(3, "ping", nil))
@@ -74,7 +74,7 @@ func TestLifecycleProtocolNegotiationAndNoNotificationOutput(t *testing.T) {
 		}
 		want := version
 		if !strings.HasPrefix(version, "202") {
-			want = protocols[0]
+			want = supportedProtocols[0]
 		}
 		if result(items[0])["protocolVersion"] != want {
 			t.Fatal("wrong protocol negotiation", items[0])
@@ -100,7 +100,7 @@ func TestInvalidRequestsAndInitializationBoundaries(t *testing.T) {
 			t.Fatal(items[i])
 		}
 	}
-	if err := s.Serve(strings.NewReader(strings.Repeat("x", maxMessage+1)), &bytes.Buffer{}); err == nil {
+	if err := s.Serve(strings.NewReader(strings.Repeat("x", maxMessageBytes+1)), &bytes.Buffer{}); err == nil {
 		t.Fatal("oversized frame accepted")
 	}
 }

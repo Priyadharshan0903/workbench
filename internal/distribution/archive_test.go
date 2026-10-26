@@ -13,6 +13,9 @@ import (
 
 func TestSourceArchiveExcludesPersonalDataAndContainsBuildInputs(t *testing.T) {
 	root := t.TempDir()
+	for _, name := range append([]string{"go.sum"}, dependencyLicenses...) {
+		testutil.Write(t, filepath.Join(root, name), "fixture")
+	}
 	for _, name := range []string{"go.mod", ".gitignore", "cmd/workbench/main.go", "internal/app/cli_test.go", "Open Workbench.command", "README.md", "docs/setup.md", "docs/migration.md", "AGENTS.md", "Makefile", "web/static/index.html", "web/static/app.js", "web/static/vendor/htmx.min.js", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/InterVariable.woff2", "web/static/fonts/INTER-LICENSE.txt", "tests/ui/interface.cjs", "tests/ui/htmx.cjs", "web/embed.go", "web/templates/logs.html", "scripts/test-ui.sh", "docs/architecture.md"} {
 		testutil.Write(t, filepath.Join(root, name), "fixture")
 	}
@@ -35,7 +38,7 @@ func TestSourceArchiveExcludesPersonalDataAndContainsBuildInputs(t *testing.T) {
 			t.Fatal("private or legacy file archived", f.Name)
 		}
 	}
-	for _, name := range []string{"go.mod", "cmd/workbench/main.go", "internal/app/cli_test.go", "docs/migration.md", "web/static/vendor/htmx.min.js", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/InterVariable.woff2", "web/static/fonts/INTER-LICENSE.txt", "tests/ui/htmx.cjs", "web/embed.go", "web/templates/logs.html", "scripts/test-ui.sh", "docs/architecture.md"} {
+	for _, name := range []string{"go.mod", "go.sum", "third_party/licenses/cobra.txt", "third_party/licenses/pflag.txt", "third_party/licenses/mousetrap.txt", "cmd/workbench/main.go", "internal/app/cli_test.go", "docs/migration.md", "web/static/vendor/htmx.min.js", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/InterVariable.woff2", "web/static/fonts/INTER-LICENSE.txt", "tests/ui/htmx.cjs", "web/embed.go", "web/templates/logs.html", "scripts/test-ui.sh", "docs/architecture.md"} {
 		if !slices.Contains(names, "Workbench/"+name) {
 			t.Fatal("missing build input", name)
 		}
@@ -43,6 +46,9 @@ func TestSourceArchiveExcludesPersonalDataAndContainsBuildInputs(t *testing.T) {
 }
 func TestRuntimeArchivePreservesExecutableMode(t *testing.T) {
 	root := t.TempDir()
+	for _, name := range dependencyLicenses {
+		testutil.Write(t, filepath.Join(root, name), "fixture")
+	}
 	for _, name := range []string{"workbench", "Open Workbench.command", "README.md", "docs/setup.md", "docs/migration.md", "docs/agents.md", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/INTER-LICENSE.txt"} {
 		testutil.Write(t, filepath.Join(root, name), "fixture")
 	}
@@ -56,7 +62,7 @@ func TestRuntimeArchivePreservesExecutableMode(t *testing.T) {
 		t.Fatal(e)
 	}
 	defer archive.Close()
-	if len(archive.File) != 8 {
+	if len(archive.File) != 8+len(dependencyLicenses) {
 		t.Fatal("unexpected runtime files")
 	}
 	for _, f := range archive.File {
@@ -67,6 +73,9 @@ func TestRuntimeArchivePreservesExecutableMode(t *testing.T) {
 }
 func TestSourceArchiveRefusesSymlinkAssets(t *testing.T) {
 	root := t.TempDir()
+	for _, name := range append([]string{"go.sum"}, dependencyLicenses...) {
+		testutil.Write(t, filepath.Join(root, name), "fixture")
+	}
 	for _, name := range []string{"go.mod", ".gitignore", "Open Workbench.command", "README.md", "docs/setup.md", "docs/migration.md", "AGENTS.md", "Makefile"} {
 		testutil.Write(t, filepath.Join(root, name), "fixture")
 	}

@@ -12,18 +12,41 @@ import (
 func TestMCPCLIHasProtocolOnlyStdout(t *testing.T) {
 	store, _ := testutil.FixtureStore(t)
 	input := `{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25"}}` + "\n" + `{"jsonrpc":"2.0","method":"notifications/initialized"}` + "\n" + `{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}` + "\n"
-	var out, stderr bytes.Buffer
-	code, err := Run([]string{"--root", store.Root, "mcp"}, strings.NewReader(input), &out, &stderr)
-	if code != 0 || err != nil || stderr.Len() != 0 {
-		t.Fatal(code, err, stderr.String())
-	}
-	lines := strings.Split(strings.TrimSpace(out.String()), "\n")
-	if len(lines) != 2 {
-		t.Fatal(out.String())
-	}
-	for _, line := range lines {
-		if !json.Valid([]byte(line)) {
-			t.Fatal("non-JSON stdout", line)
+
+	for _, allowWrites := range []bool{false, true, false} {
+		arguments := []string{"mcp", "--root", store.Root}
+		expectedTools := 6
+		if allowWrites {
+			arguments = append(arguments, "--allow-writes")
+			expectedTools = 7
+		}
+
+		var output, stderr bytes.Buffer
+		exitCode, err := Run(arguments, strings.NewReader(input), &output, &stderr)
+		if exitCode != exitSuccess || err != nil || stderr.Len() != 0 {
+			t.Fatal(exitCode, err, stderr.String())
+		}
+
+		lines := strings.Split(strings.TrimSpace(output.String()), "\n")
+		if len(lines) != 2 {
+			t.Fatal(output.String())
+		}
+		for _, line := range lines {
+			if !json.Valid([]byte(line)) {
+				t.Fatal("non-JSON stdout", line)
+			}
+		}
+
+		var toolList struct {
+			Result struct {
+				Tools []json.RawMessage `json:"tools"`
+			} `json:"result"`
+		}
+		if err := json.Unmarshal([]byte(lines[1]), &toolList); err != nil {
+			t.Fatal(err)
+		}
+		if len(toolList.Result.Tools) != expectedTools {
+			t.Fatal("MCP write flag leaked across invocations", len(toolList.Result.Tools))
 		}
 	}
 }

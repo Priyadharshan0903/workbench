@@ -7,7 +7,8 @@ Workbench runs locally and opens in your browser. It needs no account, API key o
 - macOS or Linux with `lsof` and `ps` available. Windows is not supported.
 - A modern browser.
 - Your projects still need their own runtimes and dependencies.
-- To build source: Go 1.24+. A prebuilt executable needs no Go, Python or Node installation.
+- To build source: Go 1.24+ and network access for the first Go module download (or a populated
+  module cache). A prebuilt executable needs no Go, Python or Node installation.
 
 ## Build and open
 
@@ -56,7 +57,7 @@ another installation on the port causes an actionable error; choose another free
 that existing workspace. Rebuild the binary and rerun Start to reload an older Go build from
 this installation. Detached project runners continue across engine reloads.
 
-The `--root` option goes before the subcommand and selects the installation/catalog directory:
+The `--root` option can go before or after the subcommand and selects the installation/catalog directory:
 
 ```sh
 /path/to/workbench --root /path/to/workspace list --json

@@ -10,7 +10,7 @@ entry point only connects the process arguments and standard streams to the appl
 cmd/
   workbench/main.go          Executable entry point
 internal/
-  app/                      CLI dispatch, configuration and engine lifecycle
+  app/                      Cobra commands, configuration and engine lifecycle
   catalog/                  Project validation, registry revisions and atomic transactions
   inventory/                TCP ownership inspection and workspace snapshots
   discovery/                Bounded project and agent-skill discovery
@@ -40,6 +40,8 @@ docs/
   agents.md                 Claude Code/Codex MCP setup and CLI integration
   migration.md              Rollout status and remaining desktop verification
   design.md                 Dashboard design and verification notes
+third_party/
+  licenses/                 Go dependency license notices for distribution
 ```
 
 The root holds the README, agent instructions, Go module, Makefile and macOS launcher. The
@@ -70,6 +72,18 @@ checks the current catalog and listener evidence. HTTP stop controls recheck pro
 No `pkg/`, service/repository interfaces or dependency-injection framework is needed for this
 single application. Introduce another package when a responsibility has a real independent
 boundary, rather than creating a folder for every source file.
+
+CLI command constructors are grouped by responsibility in `internal/app/commands_*.go`;
+`cli.go` connects the root command, streams, installation path and exit status. Each call to
+`Run` creates fresh flag state. Cobra owns parsing, help and completion; command handlers own
+catalog operations. Validation and help do not initialize a registry or start an engine.
+MCP separates transport (`server.go`), session dispatch (`protocol.go`), tool implementations
+(`handlers.go`) and tool metadata (`tools.go`).
+
+Prefer names such as `registry`, `project`, `snapshot`, `contents` and `err` over one-letter
+domain variables. Separate logical steps with blank lines, use keyed multiline literals for
+protocol objects, and extract functions at meaningful responsibility boundaries. Standard Go
+conventions such as `err` and short loop indexes remain appropriate. Format Go files with gofmt.
 
 ## Tests and changes
 
@@ -107,6 +121,8 @@ under `web/templates` and are parsed from the same embedded filesystem.
 
 `internal/distribution` owns the archive allowlist. Source archives contain the Go command,
 internal packages and tests, web assets/templates, docs, UI checks and their shell runner.
+They include `go.mod`, `go.sum` and the Go dependency licenses. Source builds download the pinned
+modules if they are not cached; runtime archives carry the compiled code and license notices.
 Legacy Python, compatibility commands, personal records and runtime data are excluded.
 Runtime archives contain the root executable, launcher, setup/migration docs and third-party
 licenses. When adding an embedded asset, update both the embed list and archive allowlist.

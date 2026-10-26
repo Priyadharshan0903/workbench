@@ -1,3 +1,4 @@
+const {loadDashboard}=require('./helpers/dashboard.cjs');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const {JSDOM}=require(process.env.JSDOM_MODULE||'jsdom');
 const root=path.resolve(__dirname,'../..'),calls=[];
@@ -35,7 +36,7 @@ const q=s=>w.document.querySelector(s),qa=s=>[...w.document.querySelectorAll(s)]
 const change=(s,v)=>{const e=q(s);e.value=v;e.dispatchEvent(new w.Event(e.tagName==='INPUT'?'input':'change',{bubbles:true}));};
 const submit=s=>q(s).dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
 (async()=>{
- w.eval(fs.readFileSync(path.join(root,'web/static/app.js'),'utf8'));await settle();
+ await loadDashboard(dom);await settle();
  assert.equal(q('#stat-tools').textContent,'3');assert.equal(q('#stat-running').textContent,'1');assert.equal(q('#stat-stopped').textContent,'1');
  assert.equal(qa('.tool-card').length,3);assert.equal(q('.tool-card img'),null);
  assert.ok(q('[data-id=idle] [data-start]'));assert.equal(q('[data-id=idle] .open-link'),null);

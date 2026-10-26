@@ -1,0 +1,65 @@
+@font-face {
+  font-family: Inter;
+  src: url('/fonts/InterVariable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+:root {
+  color-scheme: light;
+  --frame: #f7f7f5;
+  --sheet: #f7f7f5;
+  --surface: #fff;
+  --soft: #efefec;
+  --inset: #e6e6e2;
+  --ink: #202020;
+  --secondary: #555552;
+  --muted: #646460;
+  --line: #e3e3df;
+  --control: #c9c9c3;
+  --accent: #28774d;
+  --accent-soft: #e5f1e9;
+  --positive: #28774d;
+  --positive-bg: #e5f1e9;
+  --warning: #865819;
+  --warning-bg: #f8eedc;
+  --negative: #a4323b;
+  --negative-bg: #fae9ec;
+  --stopped: #62625d;
+  --focus: #73736d;
+  --log-bg: #111;
+  --log-ink: #e8e8e8;
+  --sidebar-width: 224px;
+  --gap: 14px;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-synthesis: none;
+}
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --frame: #0c0c0c;
+  --sheet: #0c0c0c;
+  --surface: #171717;
+  --soft: #222;
+  --inset: #2a2a2a;
+  --ink: #f1f1ef;
+  --secondary: #b8b8b4;
+  --muted: #9a9a96;
+  --line: #262626;
+  --control: #454543;
+  --accent: #8acda6;
+  --accent-soft: #21342a;
+  --positive: #8acda6;
+  --positive-bg: #21342a;
+  --warning: #e4ba78;
+  --warning-bg: #332a1c;
+  --negative: #f2949c;
+  --negative-bg: #382326;
+  --stopped: #b0b0ac;
+  --focus: #c4c4bf;
+  --log-bg: #0c0c0c;
+  --log-ink: #e8e8e6;
+}

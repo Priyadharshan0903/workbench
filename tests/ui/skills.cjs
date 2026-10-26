@@ -1,3 +1,4 @@
+const {loadDashboard}=require('./helpers/dashboard.cjs');
 const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
@@ -167,9 +168,7 @@ async function waitFor(predicate, label) {
 
 (async () => {
   try {
-    for (const filename of ['skills.js', 'app.js']) {
-      window.eval(fs.readFileSync(path.join(root, 'web/static', filename), 'utf8'));
-    }
+    await loadDashboard(dom);
     await waitFor(
       () => query('.skill-card') && query('#engine-label').textContent === 'Engine connected',
       'skill discovery',

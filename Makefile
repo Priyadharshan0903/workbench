@@ -23,8 +23,7 @@ test:
 
 check: test
 	go vet ./...
-	$(NODE) --check web/static/app.js
-	$(NODE) --check web/static/skills.js
+	$(NODE) scripts/check-frontend.cjs
 
 check-ui:
 	NODE="$(NODE)" ./scripts/test-ui.sh

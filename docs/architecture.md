@@ -23,7 +23,17 @@ internal/
   testutil/                 Temporary catalogs and inspection fixtures; tests only
 web/
   embed.go                  Embeds public assets and templates in the executable
-  static/                   HTML, CSS, JavaScript, icons, fonts and vendored htmx
+  assets.go                 Explicit public asset manifest shared with source packaging
+  static/
+    app.js                  Browser entry point and refresh coordination
+    skills.js               Skill workspace module entry point
+    js/shared/              DOM, API, preferences, appearance and icon helpers
+    js/projects/            Board, cards, details, editor and arrangement
+    js/skills/              Catalog, controller, state, views and preview filtering
+    js/workspace/           Navigation, events, discovery, services, launches and logs
+    css/                    Tokens, shared styles and feature styles
+    styles.css              Ordered CSS imports; preserves the existing cascade
+    fonts/, vendor/         Bundled Inter and htmx
   templates/                Server-rendered HTML fragments
 tests/
   ui/                       jsdom interaction tests and optional Playwright checks
@@ -63,7 +73,7 @@ inventory    → catalog, fsutil
 discovery    → catalog, fsutil
 skills       → discovery, catalog, fsutil
 catalog      → fsutil
-distribution → fsutil
+distribution → fsutil, web
 ```
 
 The lower packages never import `app` or `httpapi`. Catalogs do not inspect processes or make
@@ -93,14 +103,19 @@ public run summaries, launch/stop results, health responses and MCP schemas/resu
 varies. Protocol tests may decode heterogeneous or deliberately invalid fixtures dynamically.
 Do not replace `any` with an alias or `interface{}` just to hide its use.
 
-`web/static/app.js` remains a plain browser script with no production npm build step. It keeps
-state and preferences explicit, uses named card renderers and event handlers, separates form
-parsing from website validation, and groups initialization/event bindings at the end. Templates
-escape external values before inserting HTML. Keep this first-party source formatted and readable;
-vendored dependencies retain their upstream distribution format. Run all five UI suites after
-changes to rendering, bindings, preference migration or reviewed launch/stop flows.
+`web/static/app.js` is the native ES module entry point. It constructs feature controllers,
+connects refresh/review callbacks and initializes the page. Feature modules do not import the
+entry point; their dependencies are explicit imports or constructor arguments. There are no
+window-global application APIs, framework dependencies or production npm build steps.
 
-`web/static/skills.js` owns the skill viewer/editor and its unsaved draft. The dashboard opens it
+Shared DOM escaping, clipboard, icons, API access and preferences live in `js/shared`.
+Project rendering/editing/arrangement live in `js/projects`, while workspace navigation,
+discovery and process interactions live in `js/workspace`. CSS is grouped by responsibility
+under `css`; `styles.css` imports those files in their original cascade order. Templates escape
+external values before inserting HTML. Keep first-party source formatted and readable.
+
+`web/static/skills.js` re-exports the workspace factory. `js/skills` separates its controller,
+state, rendering and preview filtering. The dashboard opens the viewer
 only when the engine advertises `skillFiles`. File APIs resolve discovered IDs on the server;
 relative files must appear in the bounded bundle inventory. Go 1.24 `os.Root` operations contain
 bundle reads and new copy files. Skill content is data and is never executed by these APIs.
@@ -144,7 +159,8 @@ make package
 foreground. Both pass an optional `PORT`; the background target also accepts `NO_BROWSER=1`.
 The launcher owns port selection and instance reuse, keeping Make a thin interface.
 
-`web/embed.go` owns the explicit embedded-file list. Public URL paths stay independent of the
+`web/embed.go` owns the explicit embedded-file list. `web/assets.go` owns the public URL-to-file
+manifest consumed by both HTTP serving and source packaging. Public URL paths stay independent of the
 source layout: `/app.js` is backed by `web/static/app.js`, for example. Go HTML fragments live
 under `web/templates` and are parsed from the same embedded filesystem.
 
@@ -154,7 +170,14 @@ They include `go.mod`, `go.sum` and the Go dependency licenses. Source builds do
 modules if they are not cached; runtime archives carry the compiled code and license notices.
 Legacy Python, compatibility commands, personal records and runtime data are excluded.
 Runtime archives contain the root executable, launcher, setup/migration docs and third-party
-licenses. When adding an embedded asset, update both the embed list and archive allowlist.
+licenses. When adding a browser asset, update both the embed list and the public manifest.
+Non-public distribution documents/licenses remain in the packaging allowlist.
+
+`make check` checks syntax for every browser module through `scripts/check-frontend.cjs`.
+`make check-ui` runs all five existing interaction suites. Their jsdom helper evaluates the
+actual import graph in an isolated browser context using Node's test-only VM module flag;
+the HTTP integration suite fetches modules and CSS through its local fixture server. This
+verifies wiring and interactions and does not establish visual QA.
 
 An exported source archive is verified by building and testing it in a separate temporary
 directory; a successful build in the working checkout alone does not establish portability.

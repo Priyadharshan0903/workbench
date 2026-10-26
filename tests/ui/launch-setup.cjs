@@ -1,3 +1,4 @@
+const {loadDashboard}=require('./helpers/dashboard.cjs');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const {JSDOM}=require(process.env.JSDOM_MODULE||'jsdom');
 const root=path.resolve(__dirname,'../..'),calls=[];
@@ -17,7 +18,7 @@ w.fetch=async(url,options)=>{
 };
 const q=s=>w.document.querySelector(s),settle=()=>new Promise(r=>setTimeout(r,25)),submit=()=>q('#tool-form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
 (async()=>{try{
- w.eval(fs.readFileSync(path.join(root,'web/static/app.js'),'utf8'));await settle();
+ await loadDashboard(dom);await settle();
  assert.equal(q('[data-setup-start]').textContent.trim(),'Set up & start');assert.equal(q('[data-start]'),null);
  q('[data-setup-start]').click();assert.ok(q('#editor').open);assert.equal(q('[name=launch]').value,'npm run dev');assert.equal(q('#save-tool').textContent,'Save & review start');
  submit();await settle();assert.ok(q('#form-error').textContent.includes('local website URL'));assert.ok(!calls.some(c=>c.url==='/api/project'||c.url==='/api/start'));

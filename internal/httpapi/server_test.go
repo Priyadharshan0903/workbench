@@ -13,6 +13,7 @@ import (
 
 	"workbench/internal/launch"
 	"workbench/internal/testutil"
+	"workbench/web"
 )
 
 func fixtureApp(t *testing.T) *App {
@@ -35,7 +36,11 @@ func requestApp(a *App, method, path, body string, headers map[string]string) *h
 }
 func TestHTTPAssetsAndSameOrigin(t *testing.T) {
 	app := fixtureApp(t)
-	for _, path := range []string{"/api/health", "/api/state", "/api/registry", "/", "/app.js", "/skills.js", "/styles.css", "/favicon.svg", "/vendor/htmx.min.js", "/fonts/InterVariable.woff2"} {
+	paths := []string{"/api/health", "/api/state", "/api/registry"}
+	for path := range web.PublicAssets() {
+		paths = append(paths, path)
+	}
+	for _, path := range paths {
 		res := requestApp(app, "GET", path, "", nil)
 		if res.Code != 200 {
 			t.Fatalf("%s: %d %s", path, res.Code, res.Body.String())
@@ -43,8 +48,14 @@ func TestHTTPAssetsAndSameOrigin(t *testing.T) {
 		if !strings.Contains(res.Header().Get("Content-Security-Policy"), "script-src 'self'") {
 			t.Fatal("CSP missing")
 		}
+		if strings.HasSuffix(path, ".js") && !strings.Contains(res.Header().Get("Content-Type"), "javascript") {
+			t.Fatal("browser module has an invalid content type", path)
+		}
+		if strings.HasSuffix(path, ".css") && !strings.Contains(res.Header().Get("Content-Type"), "text/css") {
+			t.Fatal("stylesheet has an invalid content type", path)
+		}
 	}
-	for _, path := range []string{"/registry.json", "/../registry.json", "/.env", "/model.go", "/public/app.js", "/vendor/HTMX-LICENSE"} {
+	for _, path := range []string{"/registry.json", "/../registry.json", "/.env", "/model.go", "/public/app.js", "/vendor/HTMX-LICENSE", "/js/shared/private.js", "/js/shared/.env.js", "/css/private.css"} {
 		if res := requestApp(app, "GET", path, "", nil); res.Code != 404 {
 			t.Fatalf("private asset: %s %d", path, res.Code)
 		}

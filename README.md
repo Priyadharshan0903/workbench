@@ -166,7 +166,12 @@ internal/
   fsutil/               Safe filesystem operations
   testutil/             Shared Go test fixtures
 web/
-  static/               Browser assets, fonts and vendored dependencies
+  static/               Browser entry points and assets
+    js/shared/          DOM, API, preferences, appearance and icon helpers
+    js/projects/        Project board, details, editing and arrangement
+    js/skills/          Skill catalog, editor state, views and actions
+    js/workspace/       Navigation, discovery, services, launches and logs
+    css/                Theme tokens, shared controls and feature styles
   templates/            Server-rendered HTML fragments
 tests/ui/               Frontend interaction and browser checks
 scripts/                Developer tools and compatibility commands
@@ -341,9 +346,7 @@ not a native installer.
 
 ```sh
 make check
-JSDOM_MODULE=/absolute/path/to/jsdom node tests/ui/interface.cjs
-JSDOM_MODULE=/absolute/path/to/jsdom node tests/ui/htmx.cjs
-JSDOM_MODULE=/absolute/path/to/jsdom node tests/ui/workspace.cjs
+JSDOM_MODULE=/absolute/path/to/jsdom make check-ui NODE=/path/to/node
 ```
 
 Go tests use temporary catalogs and service fixtures. They exercise validation and concurrent
@@ -351,6 +354,11 @@ atomic writes, bounded discovery, linked skills, ownership matching, stale plans
 stopping, readiness, duplicate launches, detached runner reattachment, log limits/redaction,
 HTTP boundaries, embedded assets and clean archives. `make check` includes the race detector,
 `go vet` and JavaScript syntax validation.
+
+Browser JavaScript uses native ES modules; `app.js` connects the feature controllers and
+initializes the page. CSS imports preserve the original cascade order. No frontend framework,
+npm build or development server is required. The UI test runner supplies Node's VM module flag
+for jsdom automatically; production browsers load the modules directly.
 
 The Go CLI uses Cobra and skill previews use Goldmark, with versions pinned in `go.mod` and
 checksums in `go.sum`. The first

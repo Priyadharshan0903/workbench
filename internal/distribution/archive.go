@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"workbench/internal/fsutil"
+	"workbench/web"
 )
 
 // Package from an explicit source allowlist. Never traverse catalog/runtime data.
@@ -18,10 +19,12 @@ func SourceFiles(root string) ([]string, error) {
 	files := []string{"go.mod", "go.sum", ".gitignore", "Open Workbench.command", "README.md", "AGENTS.md", "Makefile"}
 	files = append(files, dependencyLicenses...)
 	assets := []string{
-		"web/static/index.html", "web/static/app.js", "web/static/skills.js", "web/static/styles.css", "web/static/board-grid.svg", "web/static/favicon.svg",
-		"web/static/vendor/htmx.min.js", "web/static/vendor/HTMX-LICENSE", "web/static/vendor/README.md",
-		"web/static/fonts/InterVariable.woff2", "web/static/fonts/INTER-LICENSE.txt", "web/static/fonts/README.md",
+		"web/static/vendor/HTMX-LICENSE", "web/static/vendor/README.md",
+		"web/static/fonts/INTER-LICENSE.txt", "web/static/fonts/README.md",
 		"web/templates/logs.html",
+	}
+	for _, filename := range web.PublicAssets() {
+		assets = append(assets, "web/static/"+filename)
 	}
 	docs := []string{"docs/setup.md", "docs/migration.md", "docs/design.md", "docs/architecture.md", "docs/agents.md"}
 	for _, folder := range []string{"cmd", "internal", "web", "docs", "tests/ui", "scripts"} {
@@ -57,7 +60,7 @@ func SourceFiles(root string) ([]string, error) {
 			case "tests/ui":
 				allowed = filepath.Ext(name) == ".cjs"
 			case "scripts":
-				allowed = name == "scripts/test-ui.sh" || name == "scripts/compat/README.md"
+				allowed = name == "scripts/test-ui.sh" || name == "scripts/check-frontend.cjs" || name == "scripts/compat/README.md"
 			}
 			if allowed {
 				files = append(files, relative)

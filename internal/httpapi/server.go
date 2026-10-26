@@ -361,8 +361,7 @@ func (a *App) get(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	default:
-		files := map[string]string{"/": "index.html", "/app.js": "app.js", "/skills.js": "skills.js", "/styles.css": "styles.css", "/board-grid.svg": "board-grid.svg", "/favicon.svg": "favicon.svg", "/vendor/htmx.min.js": "vendor/htmx.min.js", "/fonts/InterVariable.woff2": "fonts/InterVariable.woff2"}
-		file, ok := files[r.URL.Path]
+		file, ok := web.Asset(r.URL.Path)
 		if !ok {
 			failure(w, 404, errors.New("Not found."))
 			return

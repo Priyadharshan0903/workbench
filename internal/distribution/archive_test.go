@@ -14,6 +14,10 @@ import (
 func TestSourceArchiveExcludesPersonalDataAndContainsBuildInputs(t *testing.T) {
 	root := t.TempDir()
 	testutil.Write(t, filepath.Join(root, "web/static/skills.js"), "fixture")
+	for _, name := range []string{"web/static/js/shared/dom.js", "web/static/css/tokens.css", "scripts/check-frontend.cjs", "tests/ui/helpers/dashboard.cjs"} {
+		testutil.Write(t, filepath.Join(root, name), "fixture")
+	}
+	testutil.Write(t, filepath.Join(root, "web/static/js/shared/private.js"), "personal-sentinel")
 	for _, name := range append([]string{"go.sum"}, dependencyLicenses...) {
 		testutil.Write(t, filepath.Join(root, name), "fixture")
 	}
@@ -39,10 +43,13 @@ func TestSourceArchiveExcludesPersonalDataAndContainsBuildInputs(t *testing.T) {
 			t.Fatal("private or legacy file archived", f.Name)
 		}
 	}
-	for _, name := range []string{"web/static/skills.js", "third_party/licenses/goldmark.txt"} {
+	for _, name := range []string{"web/static/skills.js", "web/static/js/shared/dom.js", "web/static/css/tokens.css", "scripts/check-frontend.cjs", "tests/ui/helpers/dashboard.cjs", "third_party/licenses/goldmark.txt"} {
 		if !slices.Contains(names, "Workbench/"+name) {
 			t.Fatal("missing skill workspace build input", name)
 		}
+	}
+	if slices.Contains(names, "Workbench/web/static/js/shared/private.js") {
+		t.Fatal("unlisted browser module entered the source archive")
 	}
 	for _, name := range []string{"go.mod", "go.sum", "third_party/licenses/cobra.txt", "third_party/licenses/pflag.txt", "third_party/licenses/mousetrap.txt", "cmd/workbench/main.go", "internal/app/cli_test.go", "docs/migration.md", "web/static/vendor/htmx.min.js", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/InterVariable.woff2", "web/static/fonts/INTER-LICENSE.txt", "tests/ui/htmx.cjs", "web/embed.go", "web/templates/logs.html", "scripts/test-ui.sh", "docs/architecture.md"} {
 		if !slices.Contains(names, "Workbench/"+name) {

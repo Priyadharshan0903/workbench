@@ -159,3 +159,19 @@ server-side. Tests use isolated homes/catalogs and never change installed skills
 suite covers rendering, copying, stale edits, draft retention, managed skills and selection races.
 No skill is executed or automatically activated by these flows. Browser screenshot inspection
 remains unavailable because Chrome exits before rendering in this host, including the elevated retry.
+
+## Frontend modules
+
+The frontend now uses native ES modules and shared helpers, with feature folders for projects,
+skills and workspace interactions. `app.js` only coordinates initialization and refresh callbacks.
+The skill workspace entry point re-exports a controller; its state, views and Markdown filtering
+are separate modules. Feature dependencies remain independent of the app entry point.
+
+Styles are grouped under `web/static/css` and imported in the original cascade order. No CSS
+values, API contracts, browser preference keys or reviewed launch/skill-save flows are changed
+by this organization. HTMX log fragments and Go templates continue to work as before.
+
+The explicit `web/assets.go` manifest is shared by HTTP serving and source archives. Nested
+modules/styles are embedded, served with their proper MIME types, and included in clean source
+exports. Existing UI suites load the same module graph in jsdom; no production bundler or Node
+dependency is introduced. Manual visual QA remains with the user for this change.

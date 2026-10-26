@@ -143,9 +143,7 @@ executable named `workbench` beside its writable catalog directory, or use `--ro
 
 ```sh
 make check
-JSDOM_MODULE=/absolute/path/to/jsdom node tests/ui/interface.cjs
-JSDOM_MODULE=/absolute/path/to/jsdom node tests/ui/htmx.cjs
-JSDOM_MODULE=/absolute/path/to/jsdom node tests/ui/workspace.cjs
+JSDOM_MODULE=/absolute/path/to/jsdom make check-ui NODE=/path/to/node
 make package
 ```
 

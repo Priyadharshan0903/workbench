@@ -91,6 +91,7 @@ portable catalog backup; `registry.previous.json` contains only the preceding wr
 For the compiled release workflow, all command options and exit codes, see the
 [README CLI reference](../README.md#cli-reference). `make release` builds the smaller release
 executable; `make package` builds it and creates both source and executable archives.
+Claude Code and Codex can use a local stdio MCP connection; see [agents.md](agents.md).
 
 ```sh
 ./workbench list --json

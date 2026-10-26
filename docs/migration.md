@@ -97,3 +97,22 @@ Legacy Python and its tests moved to `legacy/python`; forwarding entry points mo
 commands. These moves do not change the root executable, catalog format, data directory or
 public HTTP paths. External callers of root-level Python files need the new compatibility
 paths or the direct Go CLI.
+
+## Legacy catalog import and agent access
+
+The 8731 catalog was merged into the new installation using revision-checked CLI writes.
+Existing records were preserved; the duplicate record for this Go installation was skipped.
+The legacy engine was retained under `workbench-legacy`, paused in the new catalog, with its
+8730/8731 reservations preserved. Its process was not stopped. Existing commands were kept
+while missing URL/port metadata was filled from matching source records.
+
+A full pre-import catalog backup and the import plan/result are retained under the ignored
+`.runtime/backups/` and `.runtime/catalog-import/` folders. These personal records do not enter
+distribution archives. Browser preferences and historical runner files remain specific to their
+original installation; the import migrates durable project records.
+
+`./workbench mcp` supplies stdio tools directly against the new catalog. The implementation and
+CLI are tested for protocol-only stdout, version negotiation, read-only defaults, bounded frames,
+port-inspection failures, log masking and stale-write rejection. A real MCP SDK client connected,
+listed the tools/projects, read Branchroom and checked its port. No personal client configuration
+was registered automatically. See [agents.md](agents.md) for Claude Code/Codex commands.

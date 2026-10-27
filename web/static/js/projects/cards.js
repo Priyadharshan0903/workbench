@@ -98,8 +98,9 @@ export function renderProjectCard(project) {
                   aria-label="${isProjectFavorite ? 'Unfavourite' : 'Favourite'} ${projectName}">
             ${renderIcon('star')}
           </button>
-          <button class="icon-button drag-handle" data-drag="${projectId}" draggable="true"
-                  aria-label="Move ${projectName}; use left or right arrow keys"
+          <button class="icon-button drag-handle" data-drag="${projectId}"
+                  ${workspaceState.activeTab === 'recent' ? 'hidden' : ''}
+                  aria-label="Move ${projectName}; use arrow keys to arrange"
                   title="Drag to arrange · arrow keys also work">
             ${renderIcon('dots')}
           </button>

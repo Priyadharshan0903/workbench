@@ -7,7 +7,7 @@ import { isProjectReady, needsAttention } from '../shared/project.js';
 import { preferences, savePreferences, workspaceState } from '../shared/state.js';
 
 export function renderTools() {
-  if (!workspaceState.snapshot) return;
+  if (!workspaceState.snapshot || workspaceState.pointerDrag) return;
   const search = query('#tool-search').value.trim().toLowerCase();
   const lifecycle = query('#tool-status').value;
   const scopedProjects = orderedProjects().filter(
@@ -125,15 +125,17 @@ export function emptyWorkspace(search, total) {
 </div>`;
 }
 
-export function reorderProject(id, target) {
+export function saveProjectOrder(visibleOrder) {
   const order = orderedProjects().map((project) => project.id);
-  const from = order.indexOf(id);
-  const to = order.indexOf(target);
-  if (from < 0 || to < 0 || from === to) return;
-  order.splice(from, 1);
-  order.splice(to, 0, id);
-  preferences.order = order;
+  const knownIds = new Set(order);
+  const visibleIds = [...new Set(visibleOrder)].filter((id) => knownIds.has(id));
+  const movedIds = new Set(visibleIds);
+  let visibleIndex = 0;
+
+  // Keep filtered-out projects in their original slots.
+  const nextOrder = order.map((id) => (movedIds.has(id) ? visibleIds[visibleIndex++] : id));
+  if (nextOrder.every((id, index) => id === order[index])) return;
+
+  preferences.order = nextOrder;
   savePreferences();
-  renderTools();
-  query('#announcement').textContent = `Project moved to position ${to + 1} of ${order.length}.`;
 }

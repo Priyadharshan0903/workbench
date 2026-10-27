@@ -42,7 +42,7 @@ function main() {
       const filenames = run('tar', ['-tzf', path.join(artifacts, entry.file)]).trim().split('\n');
       const allowed = entry.kind === 'launcher'
         ? /^package\/(?:package\.json|README\.md|LICENSE|npm\/(?:cli|runtime|platforms)\.cjs)$/
-        : /^package\/(?:package\.json|README\.md|LICENSE|bin\/(?:workbench|SHA256SUM)|licenses\/(?:cobra|pflag|mousetrap|goldmark|htmx|inter)\.txt)$/;
+        : /^package\/(?:package\.json|README\.md|LICENSE|bin\/(?:workbench|SHA256SUM)|licenses\/(?:cobra|pflag|mousetrap|goldmark|sortablejs|htmx|inter)\.txt)$/;
       for (const filename of filenames.filter((name) => !name.endsWith('/'))) {
         assert.match(filename, allowed, `Unexpected public package file in ${entry.file}`);
       }

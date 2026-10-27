@@ -28,7 +28,7 @@ web/
     app.js                  Browser entry point and refresh coordination
     skills.js               Skill workspace module entry point
     js/shared/              DOM, API, preferences, appearance and icon helpers
-    js/projects/            Board, cards, details, editor and arrangement
+    js/projects/            Board, cards, details, editor, removal and arrangement
     js/skills/              Catalog, controller, state, views and preview filtering
     js/workspace/           Navigation, events, discovery, services, launches and logs
     css/                    Tokens, shared styles and feature styles

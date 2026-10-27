@@ -55,6 +55,9 @@
   text-decoration: underline;
   text-underline-offset: 4px;
 }
+.text-button.danger {
+  color: var(--negative);
+}
 /* Reserve a separate area for the chevron, including long selected filenames. */
 select {
   appearance: none;

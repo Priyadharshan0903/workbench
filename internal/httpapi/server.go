@@ -193,6 +193,16 @@ func (a *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else if e == nil {
 			e = errors.New("Refresh to get the current registry revision.")
 		}
+	case "/api/project/remove":
+		var id string
+		var revision int
+		if e = read("id", &id); e == nil {
+			e = read("revision", &revision)
+		}
+		if e == nil {
+			_, e = a.Supervisor.Store.Remove(id, revision)
+			result = ActionResult{OK: true, Message: "Project removed from Workbench. Files and running processes were kept."}
+		}
 	case "/api/start":
 		var id, fp string
 		var revision int

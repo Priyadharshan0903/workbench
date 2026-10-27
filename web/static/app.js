@@ -10,6 +10,7 @@ import { savePreferences, storedPreferences, workspaceState } from './js/shared/
 import { bindSkillEvents, loadSkills } from './js/skills/catalog.js';
 import { bindLogEvents, refreshLogs } from './js/workspace/logs.js';
 import { createProjectEditor } from './js/projects/editor.js';
+import { createProjectRemoval } from './js/projects/removal.js';
 import { createLaunchController } from './js/workspace/launch.js';
 import { createServiceController } from './js/workspace/services.js';
 import { createNavigation } from './js/workspace/navigation.js';
@@ -18,13 +19,14 @@ import { createDashboardEvents } from './js/workspace/events.js';
 const launch = createLaunchController({ refresh });
 const projectEditor = createProjectEditor({ refresh, prepareLaunch: launch.prepareLaunch });
 const services = createServiceController({ refresh });
+const removal = createProjectRemoval({ refresh });
 const navigation = createNavigation({ refresh });
-const events = createDashboardEvents({ projectEditor, launch, services });
+const events = createDashboardEvents({ projectEditor, launch, services, removal });
 const { renderServices } = services;
 const { settlePending } = launch;
 
 async function refresh(forceSkills = false) {
-  if (workspaceState.isRefreshing) return;
+  if (workspaceState.isRefreshing || workspaceState.pointerDrag) return;
   workspaceState.isRefreshing = true;
   query('#refresh').disabled = true;
   try {
@@ -92,6 +94,7 @@ function initializeWorkspace() {
   bindSkillEvents();
   bindDialogEvents();
   events.bindProjectEvents();
+  removal.bindRemovalEvents();
   bindArrangementEvents();
   bindLogEvents();
   navigation.setTab();

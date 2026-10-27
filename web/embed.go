@@ -25,6 +25,7 @@ import (
 //go:embed static/js/projects/details.js
 //go:embed static/js/projects/editor.js
 //go:embed static/js/projects/model.js
+//go:embed static/js/projects/removal.js
 //go:embed static/js/projects/summary.js
 //go:embed static/js/shared/api.js
 //go:embed static/js/shared/appearance.js
@@ -48,6 +49,7 @@ import (
 //go:embed static/skills.js
 //go:embed static/styles.css
 //go:embed static/vendor/htmx.min.js
+//go:embed static/vendor/sortable.esm.js
 //go:embed templates/logs.html
 var Files embed.FS
 

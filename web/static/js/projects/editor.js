@@ -35,6 +35,9 @@ export function createProjectEditor({ refresh, prepareLaunch }) {
     query('#tool-form').elements.namedItem('id').readOnly = !!id;
     workspaceState.projectIdEdited = !!id;
     workspaceState.editorRevision = workspaceState.snapshot.revision;
+    const removeButton = query('#remove-project');
+    removeButton.hidden = !id || id === 'workbench';
+    removeButton.dataset.removeProject = id || '';
     query('#form-error').hidden = true;
     showDialog('editor');
   }

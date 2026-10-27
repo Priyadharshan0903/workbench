@@ -60,7 +60,7 @@ function writeManifest(directory, manifest) {
 
 function copyLicenses(directory) {
   copy('LICENSE', path.join(directory, 'LICENSE'));
-  for (const dependency of ['cobra', 'pflag', 'mousetrap', 'goldmark']) {
+  for (const dependency of ['cobra', 'pflag', 'mousetrap', 'goldmark', 'sortablejs']) {
     copy(`third_party/licenses/${dependency}.txt`, path.join(directory, 'licenses', `${dependency}.txt`));
   }
   copy('web/static/vendor/HTMX-LICENSE', path.join(directory, 'licenses', 'htmx.txt'));

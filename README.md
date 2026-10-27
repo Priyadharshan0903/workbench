@@ -240,10 +240,15 @@ and the HTTP response take precedence over the launcher's exit status.
 ## Your workspace
 
 - **Board / list.** The board is a rearrangeable project workspace. Drag a card's handle to move it,
-  or focus the handle and use arrow keys. Touch handles support moving a card to another card.
+  and neighboring cards animate into place before you drop. Mouse and touch use the same preview.
+  Focus the handle and use arrow keys to move it, or press Escape during a drag to cancel.
   The list is a compact alternative. Moving a card never changes its service state.
 - **Favourites / recent.** Star projects for quick access. Projects opened from Workbench appear
   in Recently opened and in the resume strip. Stopped projects keep their place.
+- **Remove projects.** Open Details or Settings and choose **Remove project**, then confirm.
+  This removes only the catalog entry and its browser preferences. Project files, launch logs
+  and running processes are kept; stop a service separately if needed. The previous catalog is
+  saved in `registry.previous.json`, and stale removal requests are rejected.
 - **Dark / light.** Dark is the default. The theme toggle remembers your choice. Existing version-2
   preferences switch to the new dark theme once; favourites, recent opens and board order are kept.
 - **Dialogs.** Click outside a panel, press Escape, or use its close button to dismiss it. The
@@ -394,4 +399,4 @@ source build needs access to the Go module proxy or a populated module cache. Ex
 packages contain the compiled backend and embedded frontend. The optional npm distribution uses
 a Node launcher and version-matched native packages; the dashboard has no npm dependencies.
 Go dependency licenses are bundled under `third_party/licenses` in both distribution formats.
-htmx 2.0.11 is vendored with its upstream license.
+htmx 2.0.11 and SortableJS 1.15.7 are vendored with their upstream licenses.

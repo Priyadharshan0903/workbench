@@ -24,6 +24,7 @@ var publicAssets = map[string]string{
 	"/js/projects/details.js":     "js/projects/details.js",
 	"/js/projects/editor.js":      "js/projects/editor.js",
 	"/js/projects/model.js":       "js/projects/model.js",
+	"/js/projects/removal.js":     "js/projects/removal.js",
 	"/js/projects/summary.js":     "js/projects/summary.js",
 	"/js/shared/api.js":           "js/shared/api.js",
 	"/js/shared/appearance.js":    "js/shared/appearance.js",
@@ -47,6 +48,7 @@ var publicAssets = map[string]string{
 	"/skills.js":                  "skills.js",
 	"/styles.css":                 "styles.css",
 	"/vendor/htmx.min.js":         "vendor/htmx.min.js",
+	"/vendor/sortable.esm.js":     "vendor/sortable.esm.js",
 }
 
 func Asset(urlPath string) (string, bool) {

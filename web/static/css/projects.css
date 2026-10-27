@@ -389,12 +389,27 @@ kbd {
   min-height: 32px;
   padding: 5px 12px;
 }
-.tool-card.dragging {
-  opacity: 0.5;
+.is-sorting-projects,
+.is-sorting-projects * {
+  cursor: grabbing !important;
+  user-select: none;
 }
-.tool-card.drop-target {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
+.tool-card.project-drag-placeholder {
+  background: var(--soft);
+  outline: 1px dashed var(--control);
+  outline-offset: -1px;
+}
+.project-drag-placeholder > * {
+  visibility: hidden;
+}
+.tool-card.project-drag-preview {
+  opacity: 1 !important;
+  background: var(--surface);
+  outline: 1px solid var(--control);
+  box-shadow: 0 14px 36px #0003;
+}
+.project-drag-preview > * {
+  visibility: visible;
 }
 .tool-grid[data-count='1']:not(.list-layout) .tool-card {
   display: grid;

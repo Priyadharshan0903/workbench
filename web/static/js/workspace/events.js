@@ -8,7 +8,7 @@ import { renderSkills, showSkill } from '../skills/catalog.js';
 import { chooseDiscoveryFolder, discoverProjectsFromForm, openDiscover } from './discovery.js';
 import { refreshLogs, showLogs } from './logs.js';
 
-export function createDashboardEvents({ projectEditor, launch, services }) {
+export function createDashboardEvents({ projectEditor, launch, services, removal }) {
   const {
     openProjectEditor,
     trackServiceAsProject,
@@ -17,6 +17,7 @@ export function createDashboardEvents({ projectEditor, launch, services }) {
   } = projectEditor;
   const { prepareLaunch, launchReviewedProject } = launch;
   const { showStop, stopReviewedService, renderServices } = services;
+  const { showRemoval } = removal;
   function handleWorkspaceClick(event) {
     const button = event.target.closest('button,a');
     if (!button) return;
@@ -72,6 +73,10 @@ export function createDashboardEvents({ projectEditor, launch, services }) {
     }
     if (button.dataset.edit) {
       openProjectEditor(button.dataset.edit);
+      return;
+    }
+    if (button.dataset.removeProject) {
+      showRemoval(button.dataset.removeProject);
       return;
     }
     if (button.dataset.skill) {

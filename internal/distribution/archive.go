@@ -81,6 +81,7 @@ var dependencyLicenses = []string{
 	"third_party/licenses/pflag.txt",
 	"third_party/licenses/mousetrap.txt",
 	"third_party/licenses/goldmark.txt",
+	"third_party/licenses/sortablejs.txt",
 }
 
 func Create(root, output string, runtimeOnly bool) error {

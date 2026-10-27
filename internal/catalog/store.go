@@ -123,6 +123,53 @@ func (s Store) Initialize(port int) error {
 		return fsutil.WriteJSON(s.Path(), Registry{Version: 1, Revision: 1, Projects: []Project{p}})
 	})
 }
+
+// Remove changes only the catalog. Project files, logs and processes are retained.
+func (s Store) Remove(id string, revision int) (Registry, error) {
+	if !ValidID(id) || revision < 1 {
+		return Registry{}, errors.New("Review the current project and registry revision before removing it.")
+	}
+	if id == "workbench" {
+		return Registry{}, errors.New("Workbench's own project entry cannot be removed.")
+	}
+
+	var result Registry
+	err := s.WithLock(func() error {
+		registry, err := s.Read()
+		if err != nil {
+			return err
+		}
+		if registry.Revision != revision {
+			return errors.New("The registry changed. Refresh and review the project again before removing it.")
+		}
+		if _, err := Find(registry, id); err != nil {
+			return err
+		}
+
+		projects := make([]Project, 0, len(registry.Projects)-1)
+		for _, project := range registry.Projects {
+			if project.ID != id {
+				projects = append(projects, project)
+			}
+		}
+		previous, err := fsutil.ReadBounded(s.Path(), 8<<20)
+		if err != nil {
+			return err
+		}
+		if err := fsutil.AtomicWrite(filepath.Join(s.Root, "registry.previous.json"), previous); err != nil {
+			return err
+		}
+		registry.Projects = projects
+		registry.Revision++
+		if err := fsutil.WriteJSON(s.Path(), registry); err != nil {
+			return err
+		}
+		result = registry
+		return nil
+	})
+	return result, err
+}
+
 func now() string { return time.Now().UTC().Format(time.RFC3339Nano) }
 
 func Find(r Registry, id string) (Project, error) {

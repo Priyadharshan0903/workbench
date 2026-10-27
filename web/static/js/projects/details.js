@@ -97,6 +97,11 @@ export function showProject(projectId) {
       ${renderDetailField('Owner', project.owner)}
       <button class="button quiet" data-copy="${escapeHTML(createAgentHandoff(project))}">Copy agent handoff</button>
     </details>
+    ${projectId === 'workbench' ? '' : `
+      <div class="project-removal-action">
+        <button class="text-button danger" data-remove-project="${escapedId}">Remove project</button>
+      </div>
+    `}
   `;
 
   showDialog('details');

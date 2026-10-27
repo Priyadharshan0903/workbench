@@ -36,7 +36,6 @@ export const workspaceState = {
   detailId: null,
   detailMode: 'overview',
   launchRequestSequence: 0,
-  draggedProjectId: null,
   pointerDrag: null,
   lastRefreshAt: 0,
   pendingLaunches: new Map(),

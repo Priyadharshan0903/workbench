@@ -26,10 +26,7 @@ export const showNotice = (message) => {
   query('#notice').hidden = !message;
 };
 
-export function showDialog(id) {
-  const element = query('#' + id);
-  if (!element.open) element.showModal();
-}
+export { requestDialogClose, showDialog } from './dialogs.js';
 
 export function renderDetailField(label, value, code = false, copy = false) {
   const valueElement = code ? 'code' : 'p';

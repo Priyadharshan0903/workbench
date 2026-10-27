@@ -1,4 +1,4 @@
-import { query as find } from '../shared/dom.js';
+import { query as find, showDialog } from '../shared/dom.js';
 import { createSkillState } from './state.js';
 import { createSkillRenderer } from './views.js';
 export function createSkillWorkspace() {
@@ -17,7 +17,7 @@ export function createSkillWorkspace() {
     state.previewHTML = '';
     find('#details').classList.add('skill-drawer');
     find('#detail-eyebrow').textContent = 'Skill workspace';
-    if (!find('#details').open) find('#details').showModal();
+    showDialog('details');
     await loadDocument(metadata.id);
   }
 
@@ -58,6 +58,7 @@ export function createSkillWorkspace() {
 
     state.discardAction = 'close';
     render();
+    find('[data-skill-action="keep-draft"]')?.focus();
     return true;
   }
 

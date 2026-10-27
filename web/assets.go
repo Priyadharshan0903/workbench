@@ -27,6 +27,7 @@ var publicAssets = map[string]string{
 	"/js/projects/summary.js":     "js/projects/summary.js",
 	"/js/shared/api.js":           "js/shared/api.js",
 	"/js/shared/appearance.js":    "js/shared/appearance.js",
+	"/js/shared/dialogs.js":       "js/shared/dialogs.js",
 	"/js/shared/dom.js":           "js/shared/dom.js",
 	"/js/shared/icons.js":         "js/shared/icons.js",
 	"/js/shared/project.js":       "js/shared/project.js",

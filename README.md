@@ -202,8 +202,12 @@ Start from source with `make run`, or use `./workbench start` after building.
 4. **Resolve a problem.** Inspect the project for the recorded path, command, URL, owned listeners
    and settings. Launch logs show the last 160 lines from Workbench's most recent launch.
 5. **Stop explicitly.** Inspect the target and confirm Stop service. Workbench verifies the PID's
-   birth time, folder, listening addresses and project association again before SIGTERM. Unknown
-   listeners and the current engine are protected. No force kill or automatic duplicate cleanup.
+   birth time, process name, folder, listening addresses and project association again before
+   SIGTERM. Registered web services can be stopped even if started from a terminal. On macOS,
+   **Diagnostics → All listeners** also offers Stop for unregistered listeners owned by your
+   user account with a known working folder. Their owner is checked again before stopping.
+   The current engine, root-owned processes and other users' unregistered processes are protected.
+   Stop affects every port served by that PID. No force kill or automatic duplicate cleanup.
 
 Missing runtimes, moved folders, stale launch plans, overlapping reservations, occupied ports and
 nonzero exits have specific recovery messages. A duplicate Start does not create a second runner.
@@ -219,11 +223,17 @@ and the HTTP response take precedence over the launcher's exit status.
   in Recently opened and in the resume strip. Stopped projects keep their place.
 - **Dark / light.** Dark is the default. The theme toggle remembers your choice. Existing version-2
   preferences switch to the new dark theme once; favourites, recent opens and board order are kept.
+- **Dialogs.** Click outside a panel, press Escape, or use its close button to dismiss it. The
+  header stays visible while its contents scroll, and the workspace behind it stays locked.
+  Unsaved skill drafts require an explicit keep/discard choice before closing.
 - **Engine details.** Workbench itself appears in the header and Diagnostics. It does not count as
   one of your projects or occupy a project card. Click the engine indicator to inspect its record.
 - **Diagnostics.** Inspect all project listeners or include unmatched processes. Port ownership is
   matched by resolved source folder; identical roots prefer matching expected ports. A process
-  launched from an unrelated folder remains unverified even when its website responds.
+  launched from an unrelated folder remains unverified even when its website responds. On macOS,
+  eligible unregistered listeners have separate **Track project** and **Stop…** actions; stopping
+  does not create a project record. Stop sends SIGTERM; a process may ignore it or be restarted
+  by its supervisor, so refresh to confirm the listener exited.
 - **Agent skills.** Codex, Claude, shared and project-local skills remain a secondary view. Discovery
   describes files on disk; it does not install or activate skills, or establish compatibility.
 

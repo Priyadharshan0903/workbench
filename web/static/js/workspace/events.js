@@ -2,9 +2,9 @@ import { renderTools } from '../projects/board.js';
 import { showProject } from '../projects/details.js';
 import { isFavorite } from '../projects/model.js';
 import { recordOpen, renderSummary } from '../projects/summary.js';
-import { copyText, query, queryAll } from '../shared/dom.js';
+import { copyText, query, queryAll, requestDialogClose } from '../shared/dom.js';
 import { preferences, savePreferences, workspaceState } from '../shared/state.js';
-import { keepSkillOpenIfDirty, renderSkills, showSkill } from '../skills/catalog.js';
+import { renderSkills, showSkill } from '../skills/catalog.js';
 import { chooseDiscoveryFolder, discoverProjectsFromForm, openDiscover } from './discovery.js';
 import { refreshLogs, showLogs } from './logs.js';
 
@@ -21,8 +21,7 @@ export function createDashboardEvents({ projectEditor, launch, services }) {
     const button = event.target.closest('button,a');
     if (!button) return;
     if (button.dataset.close) {
-      if (button.dataset.close === 'details' && keepSkillOpenIfDirty()) return;
-      query('#' + button.dataset.close).close();
+      requestDialogClose(button.dataset.close);
       return;
     }
     if (button.dataset.favorite) {

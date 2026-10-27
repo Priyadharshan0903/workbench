@@ -95,7 +95,3 @@ export async function loadSkills(force = false) {
 export function bindSkillEvents() {
   skillWorkspace.bindEvents();
 }
-
-export function keepSkillOpenIfDirty() {
-  return skillWorkspace.keepOpenIfDirty();
-}

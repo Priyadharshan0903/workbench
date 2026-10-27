@@ -36,19 +36,28 @@ export function createServiceController({ refresh }) {
   }
 
   function renderServiceAction(service) {
-    if (service.canStop) {
-      return `<button class="stop-button" data-stop="${service.pid}">Stop…</button>`;
+    if (service.self) {
+      return '<small>Current engine</small>';
     }
 
+    const actions = [];
     if (!service.projectId) {
-      return `<button class="text-button" data-track="${service.pid}">Track project</button>`;
+      actions.push(
+        `<button class="text-button" data-track="${service.pid}">Track project</button>`,
+      );
     }
 
-    let label = 'Inspect only';
-    if (service.self) label = 'Current engine';
-    else if (service.stopUnavailable) label = 'Stop unavailable';
+    if (service.canStop) {
+      actions.push(`<button class="stop-button" data-stop="${service.pid}">Stop…</button>`);
+    } else if (service.stopUnavailable) {
+      actions.push(
+        `<small title="${escapeHTML(service.stopUnavailable)}">Stop unavailable</small>`,
+      );
+    } else if (service.projectId) {
+      actions.push('<small>Inspect only</small>');
+    }
 
-    return `<small title="${escapeHTML(service.stopUnavailable || '')}">${label}</small>`;
+    return `<div class="heading-actions">${actions.join('')}</div>`;
   }
 
   function renderServiceRow(service) {
@@ -77,17 +86,24 @@ export function createServiceController({ refresh }) {
       (service) => service.pid === pid && service.canStop,
     );
     if (!service) return;
+
     workspaceState.stopTarget = { ...service };
+    const processLabel = service.projectName || service.name;
+    const registrationNote = service.projectId
+      ? ''
+      : '<p class="footnote">This process is not registered in Workbench. Confirm its folder and ports before stopping it.</p>';
+
     query('#stop-body').innerHTML =
       `<p class="dialog-intro">
   Stop
-  <strong>${escapeHTML(service.projectName)}</strong>
+  <strong>${escapeHTML(processLabel)}</strong>
   ? Pages using this service will disconnect.
 </p>` +
+      registrationNote +
       renderDetailField('Process', `${service.name} · PID ${service.pid}`) +
       renderDetailField('Listening addresses', service.endpoints.join('\n'), true) +
       renderDetailField('Working folder', service.cwd, true) +
-      '<p class="footnote">The process identity is checked again before a graceful stop is sent.</p>';
+      '<p class="footnote">Stop sends a graceful termination request to this PID and affects all its listed ports. The process identity is checked again before sending it.</p>';
     query('#stop-error').hidden = true;
     showDialog('stop-dialog');
   }

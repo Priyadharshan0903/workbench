@@ -1,24 +1,38 @@
 /* Native dialogs keep focus, Escape handling and modal background inertness. */
 dialog {
+  --dialog-padding: 26px;
   width: min(580px, calc(100vw - 28px));
   max-height: 90dvh;
-  padding: 26px;
+  padding: 0;
+  overflow: hidden;
   border: 1px solid var(--control);
   border-radius: 20px;
   background: var(--surface);
   color: var(--ink);
+}
+dialog[open] {
+  display: flex;
+  flex-direction: column;
 }
 dialog::backdrop {
   background: #0009;
 }
 .dialog-top {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  margin-bottom: 20px;
+  padding: var(--dialog-padding) var(--dialog-padding) 20px;
   color: var(--muted);
   font-size: 12px;
+}
+.dialog-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0 var(--dialog-padding) var(--dialog-padding);
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 dialog h2 {
   margin: 0 0 10px;
@@ -40,7 +54,6 @@ dialog h2 {
   height: calc(100dvh - 24px);
   max-height: calc(100dvh - 24px);
   margin: 0;
-  overflow: auto;
 }
 .detail-badges,
 .detail-actions {

@@ -226,7 +226,7 @@
     margin-top: 26px;
   }
   dialog {
-    padding: 22px;
+    --dialog-padding: 22px;
     width: calc(100vw - 24px);
   }
   .drawer {

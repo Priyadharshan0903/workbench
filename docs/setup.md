@@ -76,8 +76,14 @@ the configuration and shows the launch plan for confirmation. It does not execut
 
 Workbench opens a website when its project-owned listener and local HTTP response indicate
 readiness. Use **Details**, **Diagnostics** and **Launch logs** to investigate failures.
-Stopping requires an explicit confirmation and a fresh process identity check. Unknown services
-and the current engine are protected. Closing the browser does not stop projects.
+Stopping requires an explicit confirmation and a fresh process identity check. Registered web
+projects can be stopped even when they were started outside Workbench. On macOS, open
+**Diagnostics → All listeners** to also stop unregistered listeners owned by your user account
+with a known working folder. **Track project** remains a separate action. Review the PID, folder
+and every listed port, then confirm **Stop service**. Workbench checks the owner again and sends
+SIGTERM to that PID only; it does not force-kill a process or its process group. Refresh to verify
+the listener exited. Root-owned/other-user unregistered processes and the current engine are
+protected. Closing the browser does not stop projects.
 
 Favourites, recent opens, board order, layout and theme are stored in your browser. Project
 records are on disk and shared by the dashboard and CLI. **Export project registry** makes a

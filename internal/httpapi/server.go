@@ -20,7 +20,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"slices"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -45,6 +44,7 @@ type App struct {
 	Reload      func()
 	Signal      func(int, syscall.Signal) error
 	SkillFiles  *skills.Library
+	platform    string
 	skillsMu    sync.Mutex
 	skillsAt    time.Time
 	skillsCache discovery.Skills
@@ -62,6 +62,7 @@ func New(supervisor *launch.Supervisor, port int) *App {
 		Assets:     web.Static,
 		Signal:     syscall.Kill,
 		SkillFiles: &skills.Library{Store: supervisor.Store, Home: home},
+		platform:   runtime.GOOS,
 	}
 }
 
@@ -97,80 +98,17 @@ func respond(w http.ResponseWriter, status int, value any) {
 func failure(w http.ResponseWriter, status int, e error) {
 	respond(w, status, map[string]string{"error": e.Error()})
 }
-func (a *App) stopToken(s *inventory.Service) (string, error) {
-	birth, e := a.Supervisor.Inspector.Birth(s.PID)
-	if e != nil {
-		return "", e
-	}
-	endpoints := append([]string{}, s.Endpoints...)
-	sort.Strings(endpoints)
-	b, e := json.Marshal(processIdentity{
-		PID:       s.PID,
-		Birth:     birth,
-		CWD:       s.CWD,
-		Endpoints: endpoints,
-		ProjectID: s.ProjectID,
-	})
-	if e != nil {
-		return "", e
-	}
-	mac := hmac.New(sha256.New, []byte(a.SigningKey))
-	mac.Write(b)
-	return hex.EncodeToString(mac.Sum(nil)), nil
-}
 func (a *App) State() (*inventory.Snapshot, error) {
 	state, e := inventory.Capture(a.Supervisor.Store, a.Supervisor.Inspector)
 	if e != nil {
 		return nil, e
 	}
 	a.Supervisor.Enrich(state)
-	for _, s := range state.Services {
-		if s.CanStop {
-			token, e := a.stopToken(s)
-			if e != nil {
-				s.CanStop = false
-				s.StopUnavailable = "Cannot verify process identity: " + e.Error()
-				warning := "Stop controls are unavailable because process identity cannot be verified. Retry from a normal desktop session."
-				if !slices.Contains(state.ControlWarnings, warning) {
-					state.ControlWarnings = append(state.ControlWarnings, warning)
-				}
-			} else {
-				s.StopToken = token
-			}
-		}
-	}
+	a.prepareStopControls(state)
 	state.Features = map[string]bool{"launch": true, "discovery": true, "logs": true, "readiness": true, "htmlLogs": true}
 	state.Features["skillFiles"] = true
 	state.CSRFToken = a.CSRF
 	return state, nil
-}
-func (a *App) Stop(pid int, token string) (ActionResult, error) {
-	if pid <= 1 || token == "" {
-		return ActionResult{}, errors.New("Choose a currently listed service.")
-	}
-	state, e := inventory.Capture(a.Supervisor.Store, a.Supervisor.Inspector)
-	if e != nil {
-		return ActionResult{}, e
-	}
-	if state.InspectionError != nil {
-		return ActionResult{}, errors.New("Process inspection is unavailable; no stop was attempted.")
-	}
-	for _, s := range state.Services {
-		if s.PID == pid && s.CanStop {
-			expected, e := a.stopToken(s)
-			if e != nil || !hmac.Equal([]byte(token), []byte(expected)) {
-				return ActionResult{}, errors.New("The process changed since it was listed. Refresh and inspect it again.")
-			}
-			if e = a.Signal(pid, syscall.SIGTERM); e != nil {
-				return ActionResult{}, e
-			}
-			return ActionResult{
-				OK:      true,
-				Message: fmt.Sprintf("Sent a graceful stop request to PID %d. Refresh to verify it exited.", pid),
-			}, nil
-		}
-	}
-	return ActionResult{}, errors.New("This process is no longer a stoppable registered web service. Refresh the list.")
 }
 func (a *App) Skills(force bool) (discovery.Skills, error) {
 	a.skillsMu.Lock()

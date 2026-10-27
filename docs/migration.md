@@ -19,6 +19,10 @@ migrate to dark once, preserving favourites, recent opens and arrangement.
 - Listener ownership by resolved folder, deepest-root matching and expected-port
   tie breaking. Inspection errors stay unknown. Stop tokens bind PID, birth time,
   working folder, endpoints and project association; Stop rechecks before SIGTERM.
+- Reviewed macOS stops for unregistered listeners owned by the current non-root user with a
+  known working folder. Stop tokens also bind process name and owner UID for these listeners.
+  Track project stays separate, and MCP gains no stop capability. Tests stub signal delivery;
+  real project processes are not stopped during automated checks.
 - Reviewed launch plans, literal argv parsing, bounded sequential steps, runtime
   checks, reservation checks and duplicate prevention.
 - Detached runners using the same executable's `runner` subcommand, sequential

@@ -76,6 +76,15 @@ HTTP requests. Inventory reports process evidence without launching anything. Di
 bounded named files without executing project code. Launching requires a reviewed plan and
 checks the current catalog and listener evidence. HTTP stop controls recheck process identity.
 
+`httpapi/stop.go` prepares signed stop-review tokens and handles confirmed stop requests.
+Registered web listeners use the existing project ownership rules. On macOS, unregistered
+listeners can also be reviewed when they have a specific working folder and `ps` confirms a
+non-root UID matching Workbench's user. Their token binds the UID, PID, process name, birth time,
+working folder, endpoints and project association. The stop endpoint captures fresh listeners,
+rechecks eligibility and identity, and sends SIGTERM only to the reviewed PID. It does not
+register the process, signal process groups, force-kill or bypass the dashboard confirmation.
+MCP remains unable to stop processes.
+
 No `pkg/`, service/repository interfaces or dependency-injection framework is needed for this
 single application. Introduce another package when a responsibility has a real independent
 boundary, rather than creating a folder for every source file.
@@ -108,6 +117,12 @@ Project rendering/editing/arrangement live in `js/projects`, while workspace nav
 discovery and process interactions live in `js/workspace`. CSS is grouped by responsibility
 under `css`; `styles.css` imports those files in their original cascade order. Templates escape
 external values before inserting HTML. Keep first-party source formatted and readable.
+
+Native dialogs keep their header and close button outside the scrollable `.dialog-content`.
+While any dialog is open, the page root and body disable scrolling; the content scroll area
+contains overscroll. Shared dialog events dismiss a backdrop click only when the pointer press
+also started outside the panel. Close buttons and backdrop clicks use the same cancellable
+path as Escape, preserving the skill workspace's unsaved-draft guard and native focus return.
 
 `web/static/skills.js` re-exports the workspace factory. `js/skills` separates its controller,
 state, rendering and preview filtering. The dashboard opens the viewer

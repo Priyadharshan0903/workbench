@@ -16,8 +16,10 @@ type engineHealth struct {
 
 type processIdentity struct {
 	PID       int      `json:"pid"`
+	Name      string   `json:"name"`
 	Birth     string   `json:"birth"`
 	CWD       string   `json:"cwd"`
 	Endpoints []string `json:"endpoints"`
 	ProjectID *string  `json:"projectId"`
+	UID       *int     `json:"uid,omitempty"`
 }

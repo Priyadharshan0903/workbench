@@ -4,6 +4,7 @@ import { renderSummary } from './js/projects/summary.js';
 import { requestJSON } from './js/shared/api.js';
 import { applyTheme, setSidebar } from './js/shared/appearance.js';
 import { query, showNotice } from './js/shared/dom.js';
+import { bindDialogEvents } from './js/shared/dialogs.js';
 import { paintIcons } from './js/shared/icons.js';
 import { savePreferences, storedPreferences, workspaceState } from './js/shared/state.js';
 import { bindSkillEvents, loadSkills } from './js/skills/catalog.js';
@@ -91,6 +92,7 @@ function initializeWorkspace() {
 
   navigation.bindNavigationEvents();
   bindSkillEvents();
+  bindDialogEvents();
   events.bindProjectEvents();
   bindArrangementEvents();
   bindLogEvents();

@@ -28,6 +28,7 @@ import (
 //go:embed static/js/projects/summary.js
 //go:embed static/js/shared/api.js
 //go:embed static/js/shared/appearance.js
+//go:embed static/js/shared/dialogs.js
 //go:embed static/js/shared/dom.js
 //go:embed static/js/shared/icons.js
 //go:embed static/js/shared/project.js

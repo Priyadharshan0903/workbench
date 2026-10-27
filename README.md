@@ -24,26 +24,27 @@ With a compiled executable, start Workbench directly:
 ./workbench start
 ```
 
-Workbench now runs as a Go executable with its dashboard assets embedded. Build from source with
-Go 1.24+ (`make build`), or use an executable package for your OS and architecture. The executable
-needs neither Python nor Node. macOS is the primary platform; process inspection uses `lsof` and
+Workbench runs as a Go executable with its dashboard assets embedded. Build from source with
+Go 1.24+ (`make build`), or use an executable package for your OS and architecture.
+macOS is the primary platform; process inspection uses `lsof` and
 `ps`. Linux is supported when those utilities are installed. Windows is not supported.
 A project's own dependencies and runtime still need to be installed.
 
 The default address for a fresh installation is **http://127.0.0.1:8730/**. An optional
-`.runtime/local.json` containing `{"port":8731}` selects another port. Check the shared local
+`.runtime/local.json` containing `{"port":8732}` selects another port. Check the shared local
 catalog and actual listeners before choosing one; an older installation may reserve these ports.
 
 The Start command reuses a healthy Go instance of this installation and refuses an occupied port or
 another runtime. After rebuilding, running Start again reloads a changed Go engine in place;
-detached project runners keep their processes. It never stops an older Python installation to
-make room. Corrupt catalogs are reported rather than reset. A new installation gets its own
+detached project runners keep their processes. Other installations and incompatible services
+are left running. Corrupt catalogs are reported rather than reset. A new installation gets its own
 empty catalog containing only Workbench.
 
 The backend and CLI run in Go. The dashboard opens in dark mode with a compact project board,
 command previews and a separate engine indicator. Launch logs use locally bundled htmx and Go
 HTML templates; other dashboard interactions use the JSON API and vanilla JavaScript. Both the
-font and htmx are served locally. See [migration notes](docs/migration.md) for the remaining migration work.
+font and htmx are served locally. See the [architecture guide](docs/architecture.md) for how
+the application is organized.
 
 ## Run the compiled version
 
@@ -55,8 +56,8 @@ make release
 ./workbench start --port 8732
 ```
 
-`make release` builds an optimized executable without Go's symbol/debug tables. There is no
-development server, npm bundle or Python process involved. Open the address printed by Start;
+`make release` builds an optimized executable without Go's symbol/debug tables. The executable
+includes the dashboard assets. Open the address printed by Start;
 with the example port it is **http://127.0.0.1:8732/**. Check reservations before selecting a port.
 Port 8732 is the current development installation; use the same port to reuse it after a rebuild.
 
@@ -83,8 +84,8 @@ Rebuild after changing Go code, CSS, HTML, JavaScript or the bundled font; all p
 embedded. Run Start again on the same port to reload a changed build of this installation.
 Closing or refreshing a browser tab alone does not load a newly built executable.
 
-An executable package runs without Go, Node or Python installed. It still needs `lsof`, `ps`,
-a writable installation/catalog folder and the runtimes required by your individual projects.
+An executable package includes the application and frontend. It needs `lsof`, `ps`, a writable
+installation/catalog folder and the runtimes required by your individual projects.
 This release runs on loopback as a personal local tool; it is not a public multi-user web service.
 
 ## CLI reference
@@ -171,8 +172,8 @@ web/
     js/workspace/       Navigation, discovery, services, launches and logs
     css/                Theme tokens, shared controls and feature styles
   templates/            Server-rendered HTML fragments
-scripts/                Developer tools and compatibility commands
-docs/                   Setup, architecture, migration and design notes
+scripts/                JavaScript syntax checks
+docs/                   Setup, architecture, agent integration and design notes
 ```
 
 Go tests live beside their packages. The root `workbench` binary, catalogs, `.runtime/` and
@@ -345,7 +346,7 @@ bundled htmx license and setup guide. Use `./workbench package --runtime-only` f
 files. Build separately for each OS/architecture you want to distribute.
 
 Both archives exclude personal project records, logs, runtime settings and credentials. The
-runtime package needs no Go or Python installation. It is an unsigned portable application,
+runtime package contains a compiled executable. It is an unsigned portable application,
 not a native installer.
 
 ## Verify from a source checkout
@@ -363,23 +364,11 @@ HTTP boundaries, embedded assets and clean archives. `make check` includes the r
 Browser JavaScript uses native ES modules; `app.js` connects the feature controllers and
 initializes the page. CSS imports preserve the original cascade order. No frontend framework,
 npm build or development server is required. Browsers load the modules directly. Frontend
-interaction and visual checks are manual; the previous UI test harness has been removed.
+interaction and visual checks are manual.
 
 The Go CLI uses Cobra and skill previews use Goldmark, with versions pinned in `go.mod` and
 checksums in `go.sum`. The first
 source build needs access to the Go module proxy or a populated module cache. Executable
-packages still run without Go, Python or Node installed. There is no production npm dependency.
+packages contain the compiled backend and embedded frontend. There is no production npm dependency.
 Go dependency licenses are bundled under `third_party/licenses` in both distribution formats.
 htmx 2.0.11 is vendored with its upstream license.
-
-## Retired migration code
-
-The previous Python backend and its tests have been removed, along with the standalone UI test
-harness and its runner. Go package tests and JavaScript syntax validation remain in `make check`.
-Manual frontend QA should cover projects, discovery, launch/stop review, logs, themes, and skill
-view/edit/copy flows after browser changes.
-
-Optional Python forwarding commands remain under `scripts/compat`, and the agent instruction
-installer remains under `scripts`; neither is required by the Go application or included in
-executable archives. New automation should invoke `./workbench` directly; see
-[compatibility commands](scripts/compat/README.md). Earlier implementation history remains in Git.

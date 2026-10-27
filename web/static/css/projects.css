@@ -132,16 +132,6 @@ kbd {
   border-radius: 3px;
   padding: 0 5px;
 }
-select {
-  min-height: 36px;
-  max-width: 220px;
-  background: var(--surface);
-  border: 1px solid var(--control);
-  border-radius: 8px;
-  padding: 7px 28px 7px 11px;
-  color: var(--secondary);
-  font-size: 12px;
-}
 .view-toggle {
   display: flex;
   gap: 3px;

@@ -306,9 +306,12 @@ form select,
   padding: 10px 12px;
   border: 1px solid var(--control);
   border-radius: 8px;
-  background: var(--frame);
+  background-color: var(--frame);
   color: var(--ink);
   font-size: 13px;
+}
+form select {
+  padding-inline-end: 40px;
 }
 form textarea {
   resize: vertical;

@@ -20,7 +20,7 @@ import (
 )
 
 // The test executable supplies an isolated service and runs the real runner.
-// Production has no fixture routes, test modes, or Python dependency.
+// Production has no fixture routes or test modes.
 
 func TestMain(m *testing.M) {
 	if len(os.Args) > 1 {
@@ -99,7 +99,7 @@ func TestCommandLexerLiteralArgumentsAndRejections(t *testing.T) {
 			t.Errorf("accepted shell syntax: %s", cmd)
 		}
 	}
-	if _, e = parseCommands("workbench-nonexistent-runtime server.py", cwd, nil); e == nil || !strings.Contains(e.Error(), "not installed") {
+	if _, e = parseCommands("workbench-nonexistent-runtime main.js", cwd, nil); e == nil || !strings.Contains(e.Error(), "not installed") {
 		t.Fatal("missing runtime not explained", e)
 	}
 }

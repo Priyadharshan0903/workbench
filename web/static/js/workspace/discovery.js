@@ -6,7 +6,7 @@ import { workspaceState } from '../shared/state.js';
 export function openDiscover() {
   if (!workspaceState.snapshot?.features?.discovery) {
     showNotice(
-      'Project discovery needs the updated local engine. Reopen Workbench with its launcher.',
+      'Project discovery is unavailable in this engine. Rebuild Workbench and run ./workbench start.',
     );
     return;
   }

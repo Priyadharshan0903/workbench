@@ -26,7 +26,7 @@ func SourceFiles(root string) ([]string, error) {
 	for _, filename := range web.PublicAssets() {
 		assets = append(assets, "web/static/"+filename)
 	}
-	docs := []string{"docs/setup.md", "docs/migration.md", "docs/design.md", "docs/architecture.md", "docs/agents.md"}
+	docs := []string{"docs/setup.md", "docs/design.md", "docs/architecture.md", "docs/agents.md"}
 	for _, folder := range []string{"cmd", "internal", "web", "docs", "scripts"} {
 		err := filepath.WalkDir(filepath.Join(root, folder), func(path string, entry os.DirEntry, walkErr error) error {
 			if walkErr != nil {
@@ -58,7 +58,7 @@ func SourceFiles(root string) ([]string, error) {
 			case "docs":
 				allowed = slices.Contains(docs, name)
 			case "scripts":
-				allowed = name == "scripts/check-frontend.cjs" || name == "scripts/compat/README.md"
+				allowed = name == "scripts/check-frontend.cjs"
 			}
 			if allowed {
 				files = append(files, relative)
@@ -81,7 +81,7 @@ var dependencyLicenses = []string{
 }
 
 func Create(root, output string, runtimeOnly bool) error {
-	files := []string{"workbench", "README.md", "docs/setup.md", "docs/migration.md", "docs/agents.md", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/INTER-LICENSE.txt"}
+	files := []string{"workbench", "README.md", "docs/setup.md", "docs/agents.md", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/INTER-LICENSE.txt"}
 	files = append(files, dependencyLicenses...)
 	var e error
 	if !runtimeOnly {

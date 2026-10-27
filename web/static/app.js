@@ -8,7 +8,6 @@ import { bindDialogEvents } from './js/shared/dialogs.js';
 import { paintIcons } from './js/shared/icons.js';
 import { savePreferences, storedPreferences, workspaceState } from './js/shared/state.js';
 import { bindSkillEvents, loadSkills } from './js/skills/catalog.js';
-import { redirectLegacyEngine } from './js/workspace/engine.js';
 import { bindLogEvents, refreshLogs } from './js/workspace/logs.js';
 import { createProjectEditor } from './js/projects/editor.js';
 import { createLaunchController } from './js/workspace/launch.js';
@@ -39,11 +38,7 @@ async function refresh(forceSkills = false) {
     renderTools();
     renderServices();
     settlePending();
-    if (!workspaceState.snapshot.features?.launch)
-      showNotice(
-        'The workspace UI is updated. Reopen Workbench with its launcher once to enable project starts and discovery.',
-      );
-    else if (query('#notice').textContent.startsWith('Could not refresh the local engine.'))
+    if (query('#notice').textContent.startsWith('Could not refresh the local engine.'))
       showNotice('');
     if (forceSkills && workspaceState.activeTab === 'skills') await loadSkills(true);
     if (query('#details').open && workspaceState.detailMode === 'logs')
@@ -98,9 +93,7 @@ function initializeWorkspace() {
   bindLogEvents();
   navigation.setTab();
 
-  redirectLegacyEngine().then((forwarded) => {
-    if (!forwarded) refresh();
-  });
+  refresh();
 
   workspaceState.lastRefreshAt = Date.now();
   setInterval(pollWorkspace, 1000);

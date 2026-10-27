@@ -8,7 +8,7 @@ Workbench runs locally and opens in your browser. It needs no account, API key o
 - A modern browser.
 - Your projects still need their own runtimes and dependencies.
 - To build source: Go 1.24+ and network access for the first Go module download (or a populated
-  module cache). A prebuilt executable needs no Go, Python or Node installation.
+  module cache). A prebuilt executable needs only the OS utilities listed above and your projects' runtimes.
 
 ## Build and open
 
@@ -48,7 +48,7 @@ listeners first. Once this installation has a catalog, its own CLI can inspect r
 port, create `.runtime/local.json` containing `{"port":8732}` after verifying availability.
 `./workbench start --port 8732` is also available. No existing service is stopped automatically.
 
-Start reuses only a healthy Go v3 engine from this installation. An existing Python engine or
+Start reuses only a healthy Go v3 engine from this installation. An incompatible service or
 another installation on the port causes an actionable error; choose another free port or use
 that existing workspace. Rebuild the binary and rerun Start to reload an older Go build from
 this installation. Detached project runners continue across engine reloads.
@@ -121,9 +121,6 @@ Claude Code and Codex can use a local stdio MCP connection; see [agents.md](agen
 ./workbench skills --provider claude --json
 ```
 
-For existing automation, `python3 scripts/compat/start.py`, `python3 scripts/compat/registry.py ...` and `python3 scripts/compat/package.py ...`
-forward to the Go binary in source checkouts. New automation should invoke the executable.
-
 ## Runtime data and troubleshooting
 
 - `registry.json`: durable project records; preserve it across updates.
@@ -150,7 +147,7 @@ make package
 
 Node is used only for JavaScript syntax checks in `make check`; no frontend build is required.
 Go tests use isolated temporary fixtures; they do not stop catalog services. Browser interaction
-and visual QA are manual; the standalone UI test harness has been retired.
+and visual QA are manual.
 
 `dist/Workbench-codebase.zip` contains Go source and tests. `dist/Workbench.zip` contains the
 current platform executable, setup files and htmx/Inter licenses. Neither contains your
@@ -163,7 +160,6 @@ GOOS=linux GOARCH=amd64 go build -trimpath -o dist/linux-amd64/workbench ./cmd/w
 ```
 
 Executable packages are unsigned. Preserve executable permissions when transferring them.
-See migration.md for the migration boundary and deferred work.
 
 ## Source organization
 

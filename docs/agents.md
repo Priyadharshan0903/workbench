@@ -107,9 +107,12 @@ An agent with terminal access can use the CLI without MCP:
 ./workbench register --file /path/to/project.json --revision 13
 ```
 
-Use the actual revision returned by `list --json`; 13 is only an example. The optional
-`scripts/install_agent_instructions.py` helper previews Go CLI instructions for AGENTS.md and
-CLAUDE.md. Applying those global instructions is a separate explicit action.
+Use the actual revision returned by `list --json`; 13 is only an example.
+
+To keep project workflows consistent, add the relevant CLI commands to that project's AGENTS.md
+or CLAUDE.md. Instruct agents to inspect the catalog and actual listeners before choosing ports,
+read project context before changing records, and use the current revision when registering
+projects. Service starts and stops retain the dashboard's reviewed confirmation flow.
 
 ## How ports are identified
 
@@ -118,9 +121,9 @@ for actual TCP listeners and their process working directories. It matches owner
 source folder, preferring the deepest root and using expected ports to distinguish tools sharing
 the same root. A separate local HTTP probe establishes website readiness.
 
-For Branchroom, its launcher and old catalog specify 8721. Inspection confirms a listener from
-the Branchroom folder on that port, and the registered page responds. This is configured
-reservation plus observed process/HTTP evidence; it is not inferred from an arbitrary open port.
+For example, a project configured for port 3000 becomes ready when a listener belongs to its
+registered folder and its local website responds. The configured reservation, process identity
+and HTTP response supply separate evidence; an open port alone does not establish ownership.
 
 Importing project records preserves this behaviour. Copying a URL never establishes ownership:
 a listener from another folder remains unverified even when its website responds.

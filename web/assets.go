@@ -38,7 +38,6 @@ var publicAssets = map[string]string{
 	"/js/skills/state.js":         "js/skills/state.js",
 	"/js/skills/views.js":         "js/skills/views.js",
 	"/js/workspace/discovery.js":  "js/workspace/discovery.js",
-	"/js/workspace/engine.js":     "js/workspace/engine.js",
 	"/js/workspace/events.js":     "js/workspace/events.js",
 	"/js/workspace/launch.js":     "js/workspace/launch.js",
 	"/js/workspace/logs.js":       "js/workspace/logs.js",

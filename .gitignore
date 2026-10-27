@@ -1,8 +1,6 @@
 .runtime/
 dist/
 .taste-skill/
-__pycache__/
-*.pyc
 registry.json
 registry.json.lock
 registry.previous.json

@@ -103,6 +103,8 @@
   max-width: 520px;
   width: 100%;
   min-width: 0;
+  min-height: 40px;
+  font-size: 13px;
 }
 .skill-view-toggle {
   display: flex;

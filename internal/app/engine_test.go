@@ -8,9 +8,9 @@ func TestHealthCompatibilityRejectsOtherRuntimeAndInstallation(t *testing.T) {
 	if err := compatibleEngine(health, root); err != nil {
 		t.Fatal(err)
 	}
-	health.Runtime = "python"
+	health.Runtime = "unsupported"
 	if compatibleEngine(health, root) == nil {
-		t.Fatal("Python engine reused")
+		t.Fatal("unsupported engine runtime reused")
 	}
 	health.Runtime = "go"
 	health.Root = t.TempDir()

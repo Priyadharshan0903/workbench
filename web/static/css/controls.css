@@ -55,6 +55,44 @@
   text-decoration: underline;
   text-underline-offset: 4px;
 }
+/* Reserve a separate area for the chevron, including long selected filenames. */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  min-width: 0;
+  min-height: 36px;
+  max-width: 220px;
+  padding: 7px 40px 7px 12px;
+  border: 1px solid var(--control);
+  border-radius: 8px;
+  background-color: var(--surface);
+  background-image: var(--select-chevron);
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px 16px;
+  color: var(--secondary);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+select:enabled:hover {
+  border-color: var(--secondary);
+}
+select:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+select option {
+  background-color: var(--surface);
+  color: var(--ink);
+}
+@media (forced-colors: active) {
+  select {
+    appearance: auto;
+    -webkit-appearance: auto;
+    background-image: none;
+  }
+}
 .status-dot {
   display: inline-block;
   width: 6px;

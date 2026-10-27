@@ -37,14 +37,10 @@ web/
   templates/                Server-rendered HTML fragments
 scripts/
   check-frontend.cjs        Syntax checks for first-party browser modules
-  compat/                   Transitional Python commands that forward to the Go executable
-  install_agent_instructions.py
-                            Optional helper; does not install instructions automatically
 docs/
   setup.md                  Installation and everyday use
   architecture.md           Package boundaries and repository conventions
   agents.md                 Claude Code/Codex MCP setup and CLI integration
-  migration.md              Rollout status and remaining desktop verification
   design.md                 Dashboard design and verification notes
 third_party/
   licenses/                 Go dependency license notices for distribution
@@ -149,9 +145,8 @@ code. Runner integration tests create isolated services and temporary catalogs.
 make check
 ```
 
-The legacy Python backend and standalone UI test harness have been retired. Browser interaction
-and visual QA are manual. Optional compatibility commands remain in `scripts/compat`: prefer the
-direct Go CLI in new automation. The instruction installer generates Go CLI references.
+Browser interaction and visual QA are manual. Automation and agent tools invoke the Go CLI
+directly; see [agents.md](agents.md) for setup and example commands.
 
 ## Build and distribution
 
@@ -176,8 +171,8 @@ under `web/templates` and are parsed from the same embedded filesystem.
 internal packages and tests, web assets/templates, docs and the JavaScript syntax checker.
 They include `go.mod`, `go.sum` and the Go dependency licenses. Source builds download the pinned
 modules if they are not cached; runtime archives carry the compiled code and license notices.
-Legacy Python, compatibility commands, personal records and runtime data are excluded.
-Runtime archives contain the root executable, setup/migration docs and third-party
+Personal records and runtime data are excluded.
+Runtime archives contain the root executable, setup/agent docs and third-party
 licenses. When adding a browser asset, update both the embed list and the public manifest.
 Non-public distribution documents/licenses remain in the packaging allowlist.
 

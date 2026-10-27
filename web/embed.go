@@ -39,7 +39,6 @@ import (
 //go:embed static/js/skills/state.js
 //go:embed static/js/skills/views.js
 //go:embed static/js/workspace/discovery.js
-//go:embed static/js/workspace/engine.js
 //go:embed static/js/workspace/events.js
 //go:embed static/js/workspace/launch.js
 //go:embed static/js/workspace/logs.js

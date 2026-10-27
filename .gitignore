@@ -1,5 +1,6 @@
 .runtime/
 dist/
+node_modules/
 .taste-skill/
 registry.json
 registry.json.lock

@@ -6,7 +6,26 @@ Workbench is a personal local workspace for web projects, installed apps, refere
 skills. It keeps the project catalog on disk, checks real local services, and provides an
 explicit Start → Ready → Open workflow for registered web projects.
 
-## Open
+## Install a published release
+
+With Node 22.14+ and npm:
+
+```sh
+npx @priyadharshan933/workbench@latest
+
+# Or install the CLI for regular use.
+npm install -g @priyadharshan933/workbench
+workbench start
+workbench --version
+```
+
+The npm launcher selects the compiled Go runtime for macOS or Linux on ARM64/x64. Project
+records stay in a persistent user data directory across updates and npm cache cleanup. Source
+checkouts keep their own catalog. See [setup](docs/setup.md) for paths and options, and
+[release instructions](docs/releasing.md) for the CI publishing setup and standalone downloads.
+Until the first npm release is published, use the source commands below.
+
+## Open from source
 
 From a source checkout, build and start or reuse Workbench with one command:
 
@@ -147,8 +166,10 @@ HTTP readiness and runner progress. The internal `runner` subcommand is used by 
 | `make serve [PORT=8732]` | Build and run the engine in the foreground on a free port; Ctrl+C stops it. |
 | `make release` | Build the smaller release executable. |
 | `make test` | Run Go tests with the race detector. |
-| `make check` | Run race-enabled Go tests, vet and JavaScript syntax checks. |
+| `make check` | Run race-enabled Go tests, vet, JavaScript syntax and launcher tests. |
 | `make package` | Build the release executable and create both distribution ZIPs. |
+| `make package-npm` | Build four native runtimes, npm packages and native release archives. |
+| `make check-npm` | Verify installation and MCP using the generated local npm tarballs. |
 
 ## Repository layout
 
@@ -172,7 +193,8 @@ web/
     js/workspace/       Navigation, discovery, services, launches and logs
     css/                Theme tokens, shared controls and feature styles
   templates/            Server-rendered HTML fragments
-scripts/                JavaScript syntax checks
+scripts/                Syntax checks and npm release tooling
+npm/                    Native launcher, platform selection and packaging tests
 docs/                   Setup, architecture, agent integration and design notes
 ```
 
@@ -369,6 +391,7 @@ interaction and visual checks are manual.
 The Go CLI uses Cobra and skill previews use Goldmark, with versions pinned in `go.mod` and
 checksums in `go.sum`. The first
 source build needs access to the Go module proxy or a populated module cache. Executable
-packages contain the compiled backend and embedded frontend. There is no production npm dependency.
+packages contain the compiled backend and embedded frontend. The optional npm distribution uses
+a Node launcher and version-matched native packages; the dashboard has no npm dependencies.
 Go dependency licenses are bundled under `third_party/licenses` in both distribution formats.
 htmx 2.0.11 is vendored with its upstream license.

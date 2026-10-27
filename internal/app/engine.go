@@ -190,6 +190,7 @@ func serve(store catalog.Store, port int, out io.Writer) error {
 		return e
 	}
 	app := httpapi.New(launch.New(store), port)
+	app.ReleaseVersion = Version
 	server := &http.Server{Handler: app, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second, IdleTimeout: 30 * time.Second, MaxHeaderBytes: 32768}
 	app.Reload = func() {
 		exe, e := os.Executable()

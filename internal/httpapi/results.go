@@ -6,12 +6,13 @@ type ActionResult struct {
 }
 
 type engineHealth struct {
-	OK          bool   `json:"ok"`
-	App         string `json:"app"`
-	Version     int    `json:"version"`
-	Runtime     string `json:"runtime"`
-	SourceStamp string `json:"sourceStamp"`
-	SourceRoot  string `json:"sourceRoot"`
+	OK             bool   `json:"ok"`
+	App            string `json:"app"`
+	Version        int    `json:"version"`
+	Runtime        string `json:"runtime"`
+	SourceStamp    string `json:"sourceStamp"`
+	SourceRoot     string `json:"sourceRoot"`
+	ReleaseVersion string `json:"releaseVersion,omitempty"`
 }
 
 type processIdentity struct {

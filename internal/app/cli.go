@@ -20,6 +20,9 @@ const (
 	exitPortUnavailable = 2
 )
 
+// Version is set by the release build; source checkouts use dev.
+var Version = "dev"
+
 // commandOptions belongs to one invocation, so commands never share flag state.
 type commandOptions struct {
 	rootDirectory string
@@ -51,6 +54,7 @@ func Run(arguments []string, input io.Reader, output, stderr io.Writer) (int, er
 func (options *commandOptions) newRootCommand() *cobra.Command {
 	command := &cobra.Command{
 		Use:           "workbench",
+		Version:       Version,
 		Short:         "Manage your local project workspace",
 		SilenceErrors: true,
 		SilenceUsage:  true,

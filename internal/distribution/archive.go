@@ -17,7 +17,7 @@ import (
 
 // Package from an explicit source allowlist. Never traverse catalog/runtime data.
 func SourceFiles(root string) ([]string, error) {
-	files := []string{"go.mod", "go.sum", ".gitignore", "README.md", "AGENTS.md", "Makefile"}
+	files := []string{"go.mod", "go.sum", ".gitignore", "README.md", "AGENTS.md", "Makefile", "LICENSE", "package.json", "package-lock.json", ".github/workflows/ci.yml", ".github/workflows/publish.yml"}
 	files = append(files, dependencyLicenses...)
 	assets := []string{
 		"web/static/vendor/HTMX-LICENSE", "web/static/vendor/README.md",
@@ -27,8 +27,8 @@ func SourceFiles(root string) ([]string, error) {
 	for _, filename := range web.PublicAssets() {
 		assets = append(assets, "web/static/"+filename)
 	}
-	docs := []string{"docs/setup.md", "docs/design.md", "docs/architecture.md", "docs/agents.md"}
-	for _, folder := range []string{"cmd", "internal", "web", "docs", "scripts"} {
+	docs := []string{"docs/setup.md", "docs/design.md", "docs/architecture.md", "docs/agents.md", "docs/releasing.md"}
+	for _, folder := range []string{"cmd", "internal", "web", "docs", "scripts", "npm"} {
 		err := filepath.WalkDir(filepath.Join(root, folder), func(path string, entry os.DirEntry, walkErr error) error {
 			if walkErr != nil {
 				return walkErr
@@ -59,7 +59,9 @@ func SourceFiles(root string) ([]string, error) {
 			case "docs":
 				allowed = slices.Contains(docs, name)
 			case "scripts":
-				allowed = name == "scripts/check-frontend.cjs"
+				allowed = slices.Contains([]string{"scripts/check-frontend.cjs", "scripts/build-npm.cjs", "scripts/check-npm.cjs", "scripts/publish-npm.cjs"}, name)
+			case "npm":
+				allowed = slices.Contains([]string{"npm/cli.cjs", "npm/runtime.cjs", "npm/platforms.cjs", "npm/runtime.test.cjs"}, name)
 			}
 			if allowed {
 				files = append(files, relative)
@@ -82,7 +84,7 @@ var dependencyLicenses = []string{
 }
 
 func Create(root, output string, runtimeOnly bool) error {
-	files := []string{"workbench", "README.md", "docs/setup.md", "docs/agents.md", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/INTER-LICENSE.txt"}
+	files := []string{"workbench", "LICENSE", "README.md", "docs/setup.md", "docs/agents.md", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/INTER-LICENSE.txt"}
 	files = append(files, dependencyLicenses...)
 	var e error
 	if !runtimeOnly {

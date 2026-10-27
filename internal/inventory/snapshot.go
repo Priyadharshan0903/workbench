@@ -45,6 +45,8 @@ type Snapshot struct {
 	InspectionError *string         `json:"inspectionError"`
 	ScannedAt       string          `json:"scannedAt"`
 	RegistryPath    string          `json:"registryPath"`
+	Executable      string          `json:"executable,omitempty"`
+	ReleaseVersion  string          `json:"releaseVersion,omitempty"`
 	Features        map[string]bool `json:"features,omitempty"`
 	DiscoveryRoots  []string        `json:"discoveryRoots"`
 	ControlWarnings []string        `json:"controlWarnings"`

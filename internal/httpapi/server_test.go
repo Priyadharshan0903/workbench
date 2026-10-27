@@ -69,6 +69,22 @@ func TestHTTPAssetsAndSameOrigin(t *testing.T) {
 		t.Fatal("method accepted")
 	}
 }
+func TestReleaseMetadataKeepsProtocolVersionAndExecutableSeparate(t *testing.T) {
+	app := fixtureApp(t)
+	app.ReleaseVersion = "0.1.0"
+	health := requestApp(app, "GET", "/api/health", "", nil)
+	var metadata engineHealth
+	if err := json.Unmarshal(health.Body.Bytes(), &metadata); err != nil {
+		t.Fatal(err)
+	}
+	if metadata.Version != 3 || metadata.ReleaseVersion != "0.1.0" {
+		t.Fatal("release version changed the engine compatibility version", metadata)
+	}
+	state, err := app.State()
+	if err != nil || state.Executable != app.Supervisor.Executable || state.ReleaseVersion != "0.1.0" {
+		t.Fatal("installed command metadata is unavailable", state, err)
+	}
+}
 func TestHTTPWritesRequireTokenBoundedJSONObjectAndIntegerRevision(t *testing.T) {
 	app := fixtureApp(t)
 	if requestApp(app, "POST", "/api/project", "{}", map[string]string{"Content-Type": "application/json"}).Code != 403 {

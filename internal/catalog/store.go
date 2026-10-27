@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -110,7 +111,15 @@ func (s Store) Initialize(port int) error {
 			return e
 		}
 		owner := os.Getenv("USER")
-		p := Project{ID: "workbench", Name: "Workbench", Description: "Your local project workspace and launcher.", Kind: "web", Path: s.Root, URL: fmt.Sprintf("http://127.0.0.1:%d/", port), Ports: []int{port}, Lifecycle: "active", Owner: owner, Launch: "./workbench start", Maintenance: "Start reuses this installation. Launch logs are in .runtime/logs.", Docs: "README.md; docs/setup.md", UpdatedAt: now()}
+		executable, err := os.Executable()
+		if err != nil {
+			return err
+		}
+		quoteArgument := func(value string) string {
+			return "'" + strings.ReplaceAll(value, "'", "'\\''") + "'"
+		}
+		launchCommand := quoteArgument(executable) + " --root " + quoteArgument(s.Root) + " start"
+		p := Project{ID: "workbench", Name: "Workbench", Description: "Your local project workspace and launcher.", Kind: "web", Path: s.Root, URL: fmt.Sprintf("http://127.0.0.1:%d/", port), Ports: []int{port}, Lifecycle: "active", Owner: owner, Launch: launchCommand, Maintenance: "Start reuses this installation. Launch logs are in .runtime/logs.", Docs: "README.md; docs/setup.md", UpdatedAt: now()}
 		return fsutil.WriteJSON(s.Path(), Registry{Version: 1, Revision: 1, Projects: []Project{p}})
 	})
 }

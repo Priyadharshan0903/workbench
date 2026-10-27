@@ -1,0 +1,148 @@
+name: Package and publish
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish verified artifacts to npm and GitHub Releases
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workbench-release
+  cancel-in-progress: false
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      npm_tag: ${{ steps.version.outputs.npm_tag }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.26.10'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Check release identity
+        id: version
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const { name, version } = require('./package.json');
+          if (process.env.GITHUB_REF_TYPE === 'tag' && process.env.GITHUB_REF_NAME !== `v${version}`) {
+            throw new Error('The Git tag must match package.json exactly.');
+          }
+          if (process.env.GITHUB_REPOSITORY.toLowerCase() !== 'priyadharshan0903/workbench') {
+            throw new Error(`Configure the release repository before publishing ${name}.`);
+          }
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `version=${version}\nnpm_tag=${version.includes('-') ? 'next' : 'latest'}\n`);
+          NODE
+      - name: Install process-inspection tools
+        run: sudo apt-get update && sudo apt-get install -y lsof procps
+      - run: make check
+      - name: Build all four platforms and the npm launcher
+        run: npm run package:npm
+      - name: Check the Linux installed package
+        run: npm run check:package
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-packages
+          path: dist/npm/
+          if-no-files-found: error
+          retention-days: 14
+
+  native-check:
+    needs: package
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-15-intel, ubuntu-24.04-arm]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-packages
+          path: dist/npm
+      - name: Verify installed native executable and MCP
+        run: npm run check:package
+
+  npm:
+    needs: [package, native-check]
+    if: github.ref_type == 'tag' || inputs.publish == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - run: npm install --global npm@11
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-packages
+          path: dist/npm
+      - name: Verify artifact checksums
+        working-directory: dist/npm
+        run: sha256sum --check SHA256SUMS
+      - name: Publish native packages followed by the launcher
+        env:
+          # Optional first-release credential. Subsequent releases can use npm OIDC.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm run publish:packages
+
+  release:
+    needs: [package, npm]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-packages
+          path: dist/npm
+      - name: Publish GitHub release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: v${{ needs.package.outputs.version }}
+          RELEASE_COMMIT: ${{ github.sha }}
+          NPM_TAG: ${{ needs.package.outputs.npm_tag }}
+        run: |
+          cd dist/npm
+          sha256sum --check SHA256SUMS
+          flags=(--latest)
+          if [[ "$NPM_TAG" != latest ]]; then flags=(--prerelease --latest=false); fi
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" ./*.tgz ./*.tar.gz SHA256SUMS release-manifest.json --clobber
+          else
+            gh release create "$RELEASE_TAG" ./*.tgz ./*.tar.gz SHA256SUMS release-manifest.json \
+              --target "$RELEASE_COMMIT" --title "Workbench $RELEASE_TAG" --generate-notes "${flags[@]}"
+          fi

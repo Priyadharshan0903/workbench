@@ -14,11 +14,11 @@ import (
 func TestSourceArchiveExcludesPersonalDataAndContainsBuildInputs(t *testing.T) {
 	root := t.TempDir()
 	testutil.Write(t, filepath.Join(root, "web/static/skills.js"), "fixture")
-	for _, name := range []string{"web/static/js/shared/dom.js", "web/static/css/tokens.css", "scripts/check-frontend.cjs"} {
+	for _, name := range []string{"web/static/js/shared/dom.js", "web/static/css/tokens.css", "scripts/check-frontend.cjs", "npm/runtime.cjs"} {
 		testutil.Write(t, filepath.Join(root, name), "fixture")
 	}
 	testutil.Write(t, filepath.Join(root, "web/static/js/shared/private.js"), "personal-sentinel")
-	for _, name := range append([]string{"go.sum"}, dependencyLicenses...) {
+	for _, name := range append([]string{"go.sum", "LICENSE", "package.json", "package-lock.json", ".github/workflows/ci.yml", ".github/workflows/publish.yml"}, dependencyLicenses...) {
 		testutil.Write(t, filepath.Join(root, name), "fixture")
 	}
 	for _, name := range []string{"go.mod", ".gitignore", "cmd/workbench/main.go", "internal/app/cli_test.go", "README.md", "docs/setup.md", "AGENTS.md", "Makefile", "web/static/index.html", "web/static/app.js", "web/static/vendor/htmx.min.js", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/InterVariable.woff2", "web/static/fonts/INTER-LICENSE.txt", "web/embed.go", "web/templates/logs.html", "docs/architecture.md"} {
@@ -43,7 +43,7 @@ func TestSourceArchiveExcludesPersonalDataAndContainsBuildInputs(t *testing.T) {
 			t.Fatal("private or non-public file archived", f.Name)
 		}
 	}
-	for _, name := range []string{"web/static/skills.js", "web/static/js/shared/dom.js", "web/static/css/tokens.css", "scripts/check-frontend.cjs", "third_party/licenses/goldmark.txt"} {
+	for _, name := range []string{"web/static/skills.js", "web/static/js/shared/dom.js", "web/static/css/tokens.css", "scripts/check-frontend.cjs", "npm/runtime.cjs", "LICENSE", "package.json", ".github/workflows/publish.yml", "third_party/licenses/goldmark.txt"} {
 		if !slices.Contains(names, "Workbench/"+name) {
 			t.Fatal("missing skill workspace build input", name)
 		}
@@ -59,7 +59,7 @@ func TestSourceArchiveExcludesPersonalDataAndContainsBuildInputs(t *testing.T) {
 }
 func TestRuntimeArchivePreservesExecutableMode(t *testing.T) {
 	root := t.TempDir()
-	for _, name := range dependencyLicenses {
+	for _, name := range append([]string{"LICENSE"}, dependencyLicenses...) {
 		testutil.Write(t, filepath.Join(root, name), "fixture")
 	}
 	for _, name := range []string{"workbench", "README.md", "docs/setup.md", "docs/agents.md", "web/static/vendor/HTMX-LICENSE", "web/static/fonts/INTER-LICENSE.txt"} {
@@ -75,7 +75,7 @@ func TestRuntimeArchivePreservesExecutableMode(t *testing.T) {
 		t.Fatal(e)
 	}
 	defer archive.Close()
-	if len(archive.File) != 6+len(dependencyLicenses) {
+	if len(archive.File) != 7+len(dependencyLicenses) {
 		t.Fatal("unexpected runtime files")
 	}
 	for _, f := range archive.File {
@@ -86,13 +86,13 @@ func TestRuntimeArchivePreservesExecutableMode(t *testing.T) {
 }
 func TestSourceArchiveRefusesSymlinkAssets(t *testing.T) {
 	root := t.TempDir()
-	for _, name := range append([]string{"go.sum"}, dependencyLicenses...) {
+	for _, name := range append([]string{"go.sum", "LICENSE", "package.json", "package-lock.json", ".github/workflows/ci.yml", ".github/workflows/publish.yml"}, dependencyLicenses...) {
 		testutil.Write(t, filepath.Join(root, name), "fixture")
 	}
 	for _, name := range []string{"go.mod", ".gitignore", "README.md", "docs/setup.md", "AGENTS.md", "Makefile"} {
 		testutil.Write(t, filepath.Join(root, name), "fixture")
 	}
-	for _, dir := range []string{"cmd", "internal", "web/static", "docs", "scripts"} {
+	for _, dir := range []string{"cmd", "internal", "web/static", "docs", "scripts", "npm"} {
 		os.MkdirAll(filepath.Join(root, dir), 0700)
 	}
 	os.Symlink(filepath.Join(t.TempDir(), "private.js"), filepath.Join(root, "web/static/linked.js"))

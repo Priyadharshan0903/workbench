@@ -41,6 +41,13 @@ Run make check after changes. Frontend interaction and visual QA are manual.
 Do not edit installed skills to test the app; use temporary catalogs and homes.
 Include new embedded assets and dependency licenses in archives.
 
+npm distribution code lives under npm/ and scripts/*-npm.cjs; release setup is in
+docs/releasing.md. Keep the root npm manifest private and package through make package-npm.
+Generated public manifests must pin native dependencies to the release version. Keep catalogs
+out of npm/cache folders, preserve the stable executable path for engine reloads, and keep
+launcher stdout transparent for MCP. Package tests use temporary catalogs and never start a
+browser/server. Publishing is a CI action; never put registry credentials in repository files.
+
 The frontend uses native browser ES modules. Keep app.js limited to initialization/coordination;
 feature modules must not import it. Pass refresh/review callbacks into controllers explicitly to
 avoid circular imports. Reuse js/shared/ helpers and keep CSS under css/ with the entry-point

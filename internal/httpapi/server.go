@@ -36,19 +36,20 @@ import (
 )
 
 type App struct {
-	Supervisor  *launch.Supervisor
-	Port        int
-	CSRF        string
-	SigningKey  string
-	Stamp       string
-	Assets      fs.FS
-	Reload      func()
-	Signal      func(int, syscall.Signal) error
-	SkillFiles  *skills.Library
-	platform    string
-	skillsMu    sync.Mutex
-	skillsAt    time.Time
-	skillsCache discovery.Skills
+	Supervisor     *launch.Supervisor
+	Port           int
+	CSRF           string
+	SigningKey     string
+	Stamp          string
+	ReleaseVersion string
+	Assets         fs.FS
+	Reload         func()
+	Signal         func(int, syscall.Signal) error
+	SkillFiles     *skills.Library
+	platform       string
+	skillsMu       sync.Mutex
+	skillsAt       time.Time
+	skillsCache    discovery.Skills
 }
 
 func New(supervisor *launch.Supervisor, port int) *App {
@@ -106,6 +107,8 @@ func (a *App) State() (*inventory.Snapshot, error) {
 	}
 	a.Supervisor.Enrich(state)
 	a.prepareStopControls(state)
+	state.Executable = a.Supervisor.Executable
+	state.ReleaseVersion = a.ReleaseVersion
 	state.Features = map[string]bool{"launch": true, "discovery": true, "logs": true, "readiness": true, "htmlLogs": true}
 	state.Features["skillFiles"] = true
 	state.CSRFToken = a.CSRF
@@ -261,12 +264,13 @@ func (a *App) get(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/api/health":
 		result = engineHealth{
-			OK:          true,
-			App:         "workbench",
-			Version:     3,
-			Runtime:     "go",
-			SourceStamp: a.Stamp,
-			SourceRoot:  a.Supervisor.Store.Root,
+			OK:             true,
+			App:            "workbench",
+			Version:        3,
+			Runtime:        "go",
+			SourceStamp:    a.Stamp,
+			SourceRoot:     a.Supervisor.Store.Root,
+			ReleaseVersion: a.ReleaseVersion,
 		}
 	case "/api/state":
 		result, e = a.State()

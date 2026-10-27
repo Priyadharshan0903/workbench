@@ -29,6 +29,9 @@ async function refresh(forceSkills = false) {
   query('#refresh').disabled = true;
   try {
     workspaceState.snapshot = await requestJSON('/api/state');
+    const releaseVersion = workspaceState.snapshot.releaseVersion;
+    query('#app-version').textContent =
+      releaseVersion && releaseVersion !== 'dev' ? `${releaseVersion} · Go edition` : 'Go edition';
     workspaceState.snapshot.controlWarnings ||= [];
     for (const service of workspaceState.snapshot.services) {
       if (!service.canStop && service.projectId && !service.self && !service.stopUnavailable)

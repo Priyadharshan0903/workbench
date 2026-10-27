@@ -101,6 +101,18 @@ func TestInvalidCLIArgumentsFailBeforeCatalogWork(t *testing.T) {
 	}
 }
 
+func TestVersionDoesNotInitializeCatalog(t *testing.T) {
+	rootDirectory := filepath.Join(t.TempDir(), "not-created")
+	var output bytes.Buffer
+	exitCode, err := Run([]string{"--root", rootDirectory, "--version"}, nil, &output, &output)
+	if err != nil || exitCode != 0 || !strings.Contains(output.String(), Version) {
+		t.Fatalf("version failed: %d %v %q", exitCode, err, output.String())
+	}
+	if _, err := os.Stat(rootDirectory); !os.IsNotExist(err) {
+		t.Fatal("version initialized the catalog directory")
+	}
+}
+
 func TestPersistentRootFlagWorksBeforeAndAfterCommand(t *testing.T) {
 	store, _ := testutil.FixtureStore(t)
 	invocations := [][]string{

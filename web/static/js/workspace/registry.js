@@ -22,7 +22,9 @@ export function showAgentGuide() {
   workspaceState.detailId = null;
   const root =
     workspaceState.snapshot?.registryPath.replace(/\/registry\.json$/, '') || '/path/to/workbench';
-  const cli = `'${root}/workbench'`;
+  const executable = workspaceState.snapshot?.executable || `${root}/workbench`;
+  const quoteArgument = (value) => "'" + value.replaceAll("'", "'\\''") + "'";
+  const cli = `${quoteArgument(executable)} --root ${quoteArgument(root)}`;
   query('#detail-eyebrow').textContent = 'Human + agent';
   query('#detail-body').innerHTML =
     '<h2 id="detail-title">One shared workspace.</h2><p class="dialog-intro">You and your coding agents read and update the same project records.</p>' +

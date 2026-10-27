@@ -19,6 +19,10 @@ claude mcp add --transport stdio --scope user workbench -- "$PWD/workbench" --ro
 ```
 
 The shell expands the command and root to absolute paths before saving the client configuration.
+For a global npm installation, the equivalent server command is `workbench mcp` (with an
+optional explicit `--root` for another catalog). The launcher uses its persistent user data
+directory and preserves protocol-only stdout. Install the package globally before configuring
+an MCP client so sessions use the installed version. See [setup.md](setup.md) for installation.
 Verify with `codex mcp list` or `claude mcp get workbench`. Start a new client session or restart
 its MCP connection to load the tools; `/mcp` shows connection status in the terminal clients.
 These instructions do not modify client settings automatically.

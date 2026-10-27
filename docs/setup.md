@@ -10,6 +10,31 @@ Workbench runs locally and opens in your browser. It needs no account, API key o
 - To build source: Go 1.24+ and network access for the first Go module download (or a populated
   module cache). A prebuilt executable needs only the OS utilities listed above and your projects' runtimes.
 
+## Install through npm
+
+Once a release is published, use Node 22.14+ and npm:
+
+```sh
+npx @priyadharshan933/workbench@latest
+# Or:
+npm install -g @priyadharshan933/workbench
+workbench start
+```
+
+With no arguments, the npm launcher starts Workbench and opens the dashboard. Use
+`workbench start --no-browser` in a headless session. Optional dependencies must be enabled so
+npm installs the native runtime for macOS/Linux ARM64 or x64. No Go installation is required.
+Linux browser opening uses `xdg-open`; port/process inspection requires `lsof` and `ps`.
+
+The installed catalog and executable live in `~/Library/Application Support/Workbench` on
+macOS, or `$XDG_DATA_HOME/workbench` (default `~/.local/share/workbench`) on Linux. Set
+`WORKBENCH_HOME` to choose another persistent directory. `--root` still overrides the catalog
+directory for an invocation. npm installs use a separate catalog from source checkouts;
+records are not copied automatically. Updates preserve the installed catalog and logs.
+
+Use `workbench --version` to check the installed release. Native downloads and publishing
+instructions are documented in [releasing.md](releasing.md).
+
 ## Build and open
 
 From a source checkout:

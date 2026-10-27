@@ -37,10 +37,19 @@ web/
   templates/                Server-rendered HTML fragments
 scripts/
   check-frontend.cjs        Syntax checks for first-party browser modules
+  build-npm.cjs             Cross-builds native runtimes and stages release artifacts
+  check-npm.cjs             Offline installed-package and MCP checks
+  publish-npm.cjs           Integrity-checked CI publishing; platform packages first
+npm/
+  cli.cjs                   CLI process/signal forwarding; preserves MCP stdout
+  runtime.cjs               Persistent binary installation and checksum verification
+  platforms.cjs             Supported OS/CPU mappings
+  runtime.test.cjs          Isolated launcher and upgrade tests
 docs/
   setup.md                  Installation and everyday use
   architecture.md           Package boundaries and repository conventions
   agents.md                 Claude Code/Codex MCP setup and CLI integration
+  releasing.md              npm packages, native downloads and CI publication
   design.md                 Dashboard design and verification notes
 third_party/
   licenses/                 Go dependency license notices for distribution
@@ -108,6 +117,14 @@ connects refresh/review callbacks and initializes the page. Feature modules do n
 entry point; their dependencies are explicit imports or constructor arguments. There are no
 window-global application APIs, framework dependencies or production npm build steps.
 
+The optional npm distribution wraps the Go executable with `npm/cli.cjs`; it does not bundle
+the frontend separately. `npm/runtime.cjs` verifies the version-matched native dependency and
+atomically copies its binary to a stable user data path. The wrapper forwards stdio/signals and
+passes that directory as the default catalog root. Direct source/portable executions keep their
+existing executable-directory defaults. Release packaging and CI are described in
+[releasing.md](releasing.md). The repository npm manifest is private; staged release manifests
+are public and pin all four platform packages to the same version.
+
 Shared DOM escaping, clipboard, icons, API access and preferences live in `js/shared`.
 Project rendering/editing/arrangement live in `js/projects`, while workspace navigation,
 discovery and process interactions live in `js/workspace`. CSS is grouped by responsibility
@@ -168,7 +185,8 @@ source layout: `/app.js` is backed by `web/static/app.js`, for example. Go HTML 
 under `web/templates` and are parsed from the same embedded filesystem.
 
 `internal/distribution` owns the archive allowlist. Source archives contain the Go command,
-internal packages and tests, web assets/templates, docs and the JavaScript syntax checker.
+internal packages and tests, web assets/templates, docs, launcher/release tooling, npm metadata
+and CI workflows. The project MIT license and all third-party notices accompany distribution.
 They include `go.mod`, `go.sum` and the Go dependency licenses. Source builds download the pinned
 modules if they are not cached; runtime archives carry the compiled code and license notices.
 Personal records and runtime data are excluded.

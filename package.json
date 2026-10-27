@@ -1,0 +1,23 @@
+{
+  "name": "@priyadharshan933/workbench",
+  "version": "0.1.0",
+  "private": true,
+  "files": [],
+  "description": "Find, launch and manage your local developer projects and agent skills.",
+  "license": "MIT",
+  "author": "Priyadharshan Senthil",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Priyadharshan0903/workbench.git"
+  },
+  "homepage": "https://github.com/Priyadharshan0903/workbench#readme",
+  "bugs": "https://github.com/Priyadharshan0903/workbench/issues",
+  "engines": { "node": ">=22.14.0" },
+  "config": { "goVersion": "1.26.10" },
+  "scripts": {
+    "test": "node --test npm/*.test.cjs",
+    "package:npm": "node scripts/build-npm.cjs",
+    "check:package": "node scripts/check-npm.cjs",
+    "publish:packages": "node scripts/publish-npm.cjs"
+  }
+}

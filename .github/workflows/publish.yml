@@ -114,9 +114,6 @@ jobs:
         working-directory: dist/npm
         run: sha256sum --check SHA256SUMS
       - name: Publish native packages followed by the launcher
-        env:
-          # Optional first-release credential. Subsequent releases can use npm OIDC.
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm run publish:packages
 
   release:

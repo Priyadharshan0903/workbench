@@ -12,7 +12,7 @@ Workbench runs locally and opens in your browser. It needs no account, API key o
 
 ## Install through npm
 
-Once a release is published, use Node 22.14+ and npm:
+Use Node 22.14+ and npm:
 
 ```sh
 npx @priyadharshan933/workbench@latest

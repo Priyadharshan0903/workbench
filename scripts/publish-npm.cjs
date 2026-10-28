@@ -7,8 +7,11 @@ const { platforms, platformPackageName } = require('../npm/platforms.cjs');
 
 const directory = path.resolve(__dirname, '../dist/npm');
 
-function runNpm(args) {
-  const result = spawnSync('npm', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+function runNpm(args, interactive = false) {
+  const result = spawnSync('npm', args, {
+    encoding: 'utf8',
+    stdio: interactive ? 'inherit' : ['ignore', 'pipe', 'pipe'],
+  });
   if (result.error) throw result.error;
   return result;
 }
@@ -23,6 +26,12 @@ function publishedIntegrity(name, version) {
 }
 
 function main() {
+  const argumentsList = process.argv.slice(2);
+  if (argumentsList.length > 1 || (argumentsList.length === 1 && argumentsList[0] !== '--local')) {
+    throw new Error('Usage: node scripts/publish-npm.cjs [--local]');
+  }
+  const localPublish = argumentsList[0] === '--local';
+
   const manifest = JSON.parse(fs.readFileSync(path.join(directory, 'release-manifest.json'), 'utf8'));
   if (manifest.name !== packageInfo.name || manifest.version !== packageInfo.version) {
     throw new Error('Release artifacts must match the checked-out package name and version.');
@@ -54,10 +63,14 @@ function main() {
     }
     // Platform packages are ordered before the launcher so optional dependencies exist.
     const result = runNpm([
-      'publish', entry.filename, '--access', 'public', '--ignore-scripts', '--provenance',
+      'publish', entry.filename, '--access', 'public', '--ignore-scripts',
+      localPublish ? '--provenance=false' : '--provenance',
+      ...(localPublish ? ['--browser=false'] : []),
       '--tag', tag, '--registry=https://registry.npmjs.org/',
-    ]);
-    if (result.status !== 0) throw new Error(result.stderr || result.stdout);
+    ], localPublish);
+    if (result.status !== 0) {
+      throw new Error(result.stderr || result.stdout || `Publishing ${entry.name} failed (exit ${result.status}).`);
+    }
     console.log(`Published ${entry.name}@${entry.version} (${tag})`);
   }
 }

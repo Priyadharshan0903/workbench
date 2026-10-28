@@ -23,7 +23,6 @@ The npm launcher selects the compiled Go runtime for macOS or Linux on ARM64/x64
 records stay in a persistent user data directory across updates and npm cache cleanup. Source
 checkouts keep their own catalog. See [setup](docs/setup.md) for paths and options, and
 [release instructions](docs/releasing.md) for the CI publishing setup and standalone downloads.
-Until the first npm release is published, use the source commands below.
 
 ## Open from source
 

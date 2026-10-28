@@ -31,5 +31,7 @@ jobs:
       - name: Install Linux process-inspection tools
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y lsof procps
+      - name: Build the CLI entry point
+        run: make build
       - name: Check Go, browser syntax and launcher behavior
         run: make check

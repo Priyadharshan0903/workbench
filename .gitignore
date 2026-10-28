@@ -5,6 +5,6 @@ node_modules/
 registry.json
 registry.json.lock
 registry.previous.json
-workbench
-workbench-*
+/workbench
+/workbench-*
 coverage.out

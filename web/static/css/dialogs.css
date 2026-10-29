@@ -47,6 +47,21 @@ dialog h2 {
   font-size: 13px;
   line-height: 1.8;
 }
+.project-name-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+.project-name-heading h2 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.project-name-heading .text-button {
+  flex-shrink: 0;
+}
 .drawer {
   position: fixed;
   inset: 12px 12px 12px auto;

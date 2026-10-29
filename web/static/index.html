@@ -51,6 +51,24 @@
     <div class="dialog-top"><span id="detail-eyebrow">Project details</span><button class="icon-button" data-close="details" aria-label="Close details"><span data-icon="close"></span></button></div>
     <div id="detail-body" class="dialog-content"></div>
   </dialog>
+  <dialog id="rename-project-dialog" aria-labelledby="rename-project-title">
+    <div class="dialog-top">
+      <span>Project name</span>
+      <button class="icon-button" data-close="rename-project-dialog" aria-label="Close rename"><span data-icon="close"></span></button>
+    </div>
+    <div class="dialog-content">
+      <h2 id="rename-project-title">Rename project</h2>
+      <p class="dialog-intro">Choose a name you’ll recognize in your workspace.</p>
+      <form id="rename-project-form">
+        <label>Project name<input name="name" required maxlength="160" autocomplete="off"></label>
+        <div id="rename-project-error" class="notice" role="alert" hidden></div>
+        <div class="dialog-actions">
+          <button type="button" class="button quiet" data-close="rename-project-dialog">Cancel</button>
+          <button type="submit" class="button primary" id="save-project-name">Save name</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
   <dialog id="discover-dialog" class="wide-dialog" aria-labelledby="discover-title">
     <div class="dialog-top"><span>Project discovery</span><button class="icon-button" data-close="discover-dialog" aria-label="Close discovery"><span data-icon="close"></span></button></div>
     <div class="dialog-content">

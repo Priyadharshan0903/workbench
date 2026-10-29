@@ -244,6 +244,9 @@ and the HTTP response take precedence over the launcher's exit status.
   The list is a compact alternative. Moving a card never changes its service state.
 - **Favourites / recent.** Star projects for quick access. Projects opened from Workbench appear
   in Recently opened and in the resume strip. Stopped projects keep their place.
+- **Project names.** **Track project** suggests the working folder's name and selects it for
+  editing before you save. Open a project's Details and choose **Rename** beside its name to
+  change it later. Its stable ID, folder, ports, launch command and browser preferences are kept.
 - **Remove projects.** Open Details or Settings and choose **Remove project**, then confirm.
   This removes only the catalog entry and its browser preferences. Project files, launch logs
   and running processes are kept; stop a service separately if needed. The previous catalog is

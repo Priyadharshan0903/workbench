@@ -91,6 +91,16 @@ Discovery recognizes package scripts, Python launchers, Go executables and stati
 Go suggestions require review of the executable command and website port. Discovery never
 executes project code or automatically registers suggestions.
 
+To add an already-running project, open **Diagnostics**, select **Unmatched listeners** or
+**All listeners**, and choose **Track project**. The form suggests the working folder's name
+and selects it so you can enter your own name. Review the folder and ports before saving;
+add the launch command and local website URL when you know them. Workbench does not guess a
+start command from the process name.
+
+To change a saved name, open the project's **Details**, choose **Rename** beside the heading,
+and save the new name. Settings also keeps the name editable. Renaming preserves the stable
+ID, folder, ports, launch command and preferences; it does not rename folders or restart services.
+
 Select **Start**, review the command and folder, and confirm. Commands run as literal arguments;
 `&&` separates up to six steps. Pipes, redirects, substitutions and inline environment assignments
 need a project script. Python projects still need an installed Python interpreter.

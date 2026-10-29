@@ -11,6 +11,8 @@ import { refreshLogs, showLogs } from './logs.js';
 export function createDashboardEvents({ projectEditor, launch, services, removal }) {
   const {
     openProjectEditor,
+    openProjectRename,
+    bindRenameEvents,
     trackServiceAsProject,
     saveProjectFromForm,
     updateSuggestedProjectId,
@@ -75,6 +77,10 @@ export function createDashboardEvents({ projectEditor, launch, services, removal
       openProjectEditor(button.dataset.edit);
       return;
     }
+    if (button.dataset.renameProject) {
+      openProjectRename(button.dataset.renameProject);
+      return;
+    }
     if (button.dataset.removeProject) {
       showRemoval(button.dataset.removeProject);
       return;
@@ -110,6 +116,7 @@ export function createDashboardEvents({ projectEditor, launch, services, removal
   }
 
   function bindProjectEvents() {
+    bindRenameEvents();
     document.addEventListener('click', handleWorkspaceClick);
     query('#add-tool').addEventListener('click', () => openProjectEditor());
     query('#discover-button').addEventListener('click', openDiscover);

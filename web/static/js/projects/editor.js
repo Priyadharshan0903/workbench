@@ -1,9 +1,13 @@
+import { showProject } from './details.js';
 import { requestJSON } from '../shared/api.js';
 import { query, showDialog, showNotice } from '../shared/dom.js';
 import { projectFields } from '../shared/project.js';
 import { workspaceState } from '../shared/state.js';
 
 export function createProjectEditor({ refresh, prepareLaunch }) {
+  let renameTarget = null;
+  let isRenaming = false;
+
   function openProjectEditor(id, prefill = null, setupLaunch = false) {
     const project =
       prefill ||
@@ -45,17 +49,106 @@ export function createProjectEditor({ refresh, prepareLaunch }) {
   function trackServiceAsProject(pid) {
     const service = workspaceState.snapshot?.services.find((service) => service.pid === pid);
     if (!service) return;
-    openProjectEditor();
-    const form = query('#tool-form').elements;
-    form.namedItem('name').value = service.name;
-    form.namedItem('id').value = service.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
-    form.namedItem('path').value = service.cwd === '/' ? '' : service.cwd;
-    form.namedItem('ports').value = service.ports.join(', ');
-    form.namedItem('maintenance').value =
-      `Found ${service.name} listening on ${service.endpoints.join(', ')}. Confirm the project folder and launch command.`;
+
+    const projectPath = service.cwd && service.cwd !== '/' ? service.cwd : '';
+    const folderName = projectPath.split('/').filter(Boolean).pop();
+    const projectName = (folderName || service.name || 'Local project').slice(0, 160);
+
+    openProjectEditor(null, {
+      name: projectName,
+      id: suggestProjectId(projectName),
+      path: projectPath,
+      ports: service.ports,
+      maintenance:
+        `Found ${service.name} listening on ${service.endpoints.join(', ')}. Confirm the project folder and launch command.`,
+    });
+    query('#editor-title').textContent = 'Track a running project';
+    query('#editor-intro').textContent =
+      'Choose a project name, then review the folder and ports before adding it.';
+    query('#save-tool').textContent = 'Add project';
+
+    const nameField = query('#tool-form').elements.namedItem('name');
+    nameField.focus();
+    nameField.select();
+  }
+
+  function openProjectRename(projectId) {
+    const snapshot = workspaceState.snapshot;
+    const project = snapshot?.projects.find((project) => project.id === projectId);
+    if (!project || isRenaming) return;
+
+    // Save only catalog fields, keeping the reviewed record and its revision together.
+    const savedProject = Object.fromEntries(projectFields.map((field) => [field, project[field]]));
+    savedProject.ports = [...project.ports];
+    renameTarget = { project: savedProject, revision: snapshot.revision };
+
+    const nameField = query('#rename-project-form').elements.namedItem('name');
+    nameField.value = project.name;
+    query('#rename-project-error').hidden = true;
+    showDialog('rename-project-dialog');
+    nameField.focus();
+    nameField.select();
+  }
+
+  async function saveProjectName(event) {
+    event.preventDefault();
+    if (!renameTarget || isRenaming) return;
+
+    const reviewed = renameTarget;
+    const nameField = event.target.elements.namedItem('name');
+    const name = nameField.value.trim();
+    query('#rename-project-error').hidden = true;
+
+    if (!name) {
+      query('#rename-project-error').textContent = 'Enter a project name.';
+      query('#rename-project-error').hidden = false;
+      nameField.focus();
+      return;
+    }
+    if (name === reviewed.project.name) {
+      query('#rename-project-dialog').close();
+      return;
+    }
+
+    isRenaming = true;
+    nameField.disabled = true;
+    query('#save-project-name').disabled = true;
+    try {
+      await requestJSON('/api/project', {
+        project: { ...reviewed.project, name },
+        revision: reviewed.revision,
+      });
+      query('#rename-project-dialog').close();
+      await refresh();
+
+      if (
+        query('#details').open &&
+        workspaceState.detailId === reviewed.project.id &&
+        workspaceState.detailMode === 'overview'
+      ) {
+        showProject(reviewed.project.id);
+        query('#detail-body [data-rename-project]')?.focus();
+      }
+      showNotice('Project renamed to ' + name + '.');
+    } catch (error) {
+      if (query('#rename-project-dialog').open) {
+        query('#rename-project-error').textContent = error.message;
+        query('#rename-project-error').hidden = false;
+      } else {
+        showNotice('Could not rename project. ' + error.message);
+      }
+    } finally {
+      isRenaming = false;
+      nameField.disabled = false;
+      query('#save-project-name').disabled = false;
+    }
+  }
+
+  function bindRenameEvents() {
+    query('#rename-project-form').addEventListener('submit', saveProjectName);
+    query('#rename-project-dialog').addEventListener('close', () => {
+      renameTarget = null;
+    });
   }
 
   async function saveProjectFromForm(event) {
@@ -139,14 +232,31 @@ export function createProjectEditor({ refresh, prepareLaunch }) {
   function updateSuggestedProjectId(event) {
     if (workspaceState.projectIdEdited) return;
 
-    query('#tool-form').elements.namedItem('id').value = event.target.value
+    query('#tool-form').elements.namedItem('id').value = suggestProjectId(event.target.value);
+  }
+
+  function suggestProjectId(name) {
+    const normalizedName = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '')
       .slice(0, 64);
+    const baseId = normalizedName || 'project';
+    const existingIds = new Set(workspaceState.snapshot.projects.map((project) => project.id));
+    let projectId = baseId;
+    let suffix = 2;
+
+    while (existingIds.has(projectId)) {
+      const ending = '-' + suffix++;
+      projectId = baseId.slice(0, 64 - ending.length) + ending;
+    }
+    return projectId;
   }
+
   return {
     openProjectEditor,
+    openProjectRename,
+    bindRenameEvents,
     trackServiceAsProject,
     saveProjectFromForm,
     updateSuggestedProjectId,

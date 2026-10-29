@@ -25,8 +25,25 @@ const events = createDashboardEvents({ projectEditor, launch, services, removal 
 const { renderServices } = services;
 const { settlePending } = launch;
 
+let refreshInFlight = null;
+
 async function refresh(forceSkills = false) {
-  if (workspaceState.isRefreshing || workspaceState.pointerDrag) return;
+  if (workspaceState.pointerDrag) return;
+  if (refreshInFlight) {
+    // A save needs a snapshot requested after the write, not an older polling result.
+    await refreshInFlight;
+    return refresh(forceSkills);
+  }
+
+  refreshInFlight = refreshWorkspace(forceSkills);
+  try {
+    await refreshInFlight;
+  } finally {
+    refreshInFlight = null;
+  }
+}
+
+async function refreshWorkspace(forceSkills) {
   workspaceState.isRefreshing = true;
   query('#refresh').disabled = true;
   try {

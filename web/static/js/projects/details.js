@@ -69,7 +69,11 @@ export function showProject(projectId) {
   const expectedPorts = project.ports.map((port) => ':' + port).join(', ') || 'None recorded';
 
   query('#detail-body').innerHTML = `
-    <h2 id="detail-title">${escapeHTML(project.name)}</h2>
+    <div class="project-name-heading">
+      <h2 id="detail-title">${escapeHTML(project.name)}</h2>
+      <button class="text-button" data-rename-project="${escapedId}"
+              aria-label="Rename ${escapeHTML(project.name)}">Rename</button>
+    </div>
     <p class="dialog-intro">${escapeHTML(project.description)}</p>
     <div class="detail-badges">
       ${renderStatusBadge(statusLabels[project.status], project.status)}
